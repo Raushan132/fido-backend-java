@@ -18,8 +18,8 @@ import com.fido.app.repository.VendorProductReop;
 /**
  * <p>
  *    VendorController</br> 
- *      add the product by vendor and admin</br>
- *      get all the product by vendor and admin</br>
+ *      add the product by vendor and ADMIN</br>
+ *      get all the product by vendor and ADMIN</br>
  *      get  specific product detail by id and email</br>
  *      delete the product by id 
  *  </p>
@@ -34,6 +34,8 @@ public class VendorController {
 	@Autowired
 	private VendorProductReop productReop;
 	
+	
+	
 	@GetMapping(value = "/vendor")
 	public String getVendor() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -41,7 +43,7 @@ public class VendorController {
 		System.out.println(auth.getDetails());
 		System.out.println(auth.getCredentials());
 		System.out.println(auth.getName()); //return email
-		
+		System.out.println(auth.getAuthorities().stream().allMatch(role-> role.getAuthority().equals("ADMIN")));
 		
 		return "vendor product is available";
 	}
@@ -68,14 +70,21 @@ public class VendorController {
 	
 	@GetMapping(value="/getProductDetails/{id}")
 	public VendorProduct getProductById(@PathVariable("id") long id) {
-		  
+		
 		  return productReop.findById(id).orElseThrow();
 	}
 	
 	@DeleteMapping(value="/getDeleteProduct/{id}")
-	public String getDeleteProduct(@PathVariable("id") long id) {
+	public boolean getDeleteProduct(@PathVariable("id") long id) {
+		
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			   
+		   if(!auth.getAuthorities().stream().allMatch(role-> role.getAuthority().equals("ADMIN"))) 
+		   return false;
+		    	
+		    
 		  productReop.deleteById(id);
-		  return "deleted";
+		  return true;
 	}
 	
 	

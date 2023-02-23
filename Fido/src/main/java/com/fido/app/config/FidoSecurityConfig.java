@@ -40,8 +40,8 @@ public class FidoSecurityConfig {
 		
 		 CorsConfiguration corsConfiguration = new CorsConfiguration();
 	        corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
-	        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173"));
-	        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PUT","OPTIONS","PATCH", "DELETE"));
+	        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173","http://localhost:5500"));
+	        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PUT","OPTIONS","PATCH"));
 	        corsConfiguration.setAllowCredentials(true);
 	        corsConfiguration.setExposedHeaders(List.of("Authorization"));
 		
@@ -52,7 +52,7 @@ public class FidoSecurityConfig {
 				.antMatchers("/getProduct").permitAll()
 				.antMatchers("/setProduct").permitAll()
 				.antMatchers("/getProductDetails/{id}").permitAll()
-				.antMatchers("/getDeleteProduct/{id}").permitAll()
+				.antMatchers("/getDeleteProduct/{id}").authenticated()
 //				.antMatchers("/userProfile/{id}").permitAll()
 						.anyRequest().permitAll()
 						 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
