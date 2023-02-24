@@ -40,7 +40,7 @@ public class FidoSecurityConfig {
 		
 		 CorsConfiguration corsConfiguration = new CorsConfiguration();
 	        corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
-	        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173","http://localhost:5500"));
+	        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173","http://localhost:5500","http://127.0.0.1:5500"));
 	        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PUT","OPTIONS","PATCH"));
 	        corsConfiguration.setAllowCredentials(true);
 	        corsConfiguration.setExposedHeaders(List.of("Authorization"));

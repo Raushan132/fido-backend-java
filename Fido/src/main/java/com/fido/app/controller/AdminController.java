@@ -2,9 +2,12 @@ package com.fido.app.controller;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 //import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +27,7 @@ import com.fido.app.entity.Role;
 import com.fido.app.entity.VendorDetails;
 import com.fido.app.repository.CustomerRepo;
 import com.fido.app.repository.VendorRepo;
+import com.fido.app.services.Extract_Customer_Vendor;
 
 
 /**
@@ -47,6 +51,12 @@ public class AdminController {
 	
 	@Autowired
 	private VendorRepo vendorRepo;
+	
+	@Autowired
+	private CustomerRepo customerRepo;
+	
+	@Autowired
+	private Extract_Customer_Vendor extCustomer_Vendor;
 	
 	 @PostMapping("/admin")
 	 public String getAdmin(@RequestParam("test") String str,
@@ -88,47 +98,46 @@ public class AdminController {
 		 		@RequestParam(name="pan",required = false) MultipartFile file2) throws JsonMappingException, JsonProcessingException {
 		 
 		 System.out.println(customer);
-		 System.out.println(file1.getName());
-		 System.out.println(file2.getName());
+		
 		 // change string JSON to customer details...
 		 ObjectMapper objectMapper= new ObjectMapper();
 		 CustomerDetails custDetails= objectMapper.readValue(customer,CustomerDetails.class);
 		 
 		 //send files to the CLoudinary api...
-//		 Map<String,String> config = new HashMap<>();
-//		 config.put("cloud_name", "dkw5iydb1");
-//		 config.put("api_key", "123235391421445");
-//		 config.put("api_secret", "99vLhxjkQ_PmROAlAsaipHXZpUU");
-//		 Cloudinary cloudinary = new Cloudinary(config);
-//		 try {
-//			 @SuppressWarnings("rawtypes")
-//			Map store=  cloudinary.uploader().upload(file1.getBytes(), ObjectUtils.emptyMap());
-//			System.out.println(store);
-//		    System.out.println(store.get("secure_url"));
-//		    custDetails.setUrlAadhar((String)store.get("secure_url"));
-//		    
-//			store=  cloudinary.uploader().upload(file2.getBytes(), ObjectUtils.emptyMap());
-//			System.out.println(store);
-//		    System.out.println(store.get("secure_url"));
-//		    custDetails.setUrlPanCard((String)store.get("secure_url"));
-//
-//		 } catch (IOException exception) {
-//			  System.out.println(exception.getMessage());
-//			}
-//		 
+		 Map<String,String> config = new HashMap<>();
+		 config.put("cloud_name", "dkw5iydb1");
+		 config.put("api_key", "123235391421445");
+		 config.put("api_secret", "99vLhxjkQ_PmROAlAsaipHXZpUU");
+		 Cloudinary cloudinary = new Cloudinary(config);
+		 try {
+			 @SuppressWarnings("rawtypes")
+			Map store=  cloudinary.uploader().upload(file1.getBytes(), ObjectUtils.emptyMap());
+			System.out.println(store);
+		    System.out.println(store.get("secure_url"));
+		    custDetails.setUrlAadhar((String)store.get("secure_url"));
+		    
+			store=  cloudinary.uploader().upload(file2.getBytes(), ObjectUtils.emptyMap());
+			System.out.println(store);
+		    System.out.println(store.get("secure_url"));
+		    custDetails.setUrlPanCard((String)store.get("secure_url"));
+
+		 } catch (IOException exception) {
+			  System.out.println(exception.getMessage());
+			}
+
 		
 		 
 		 System.out.println(custDetails);
-		 //System.out.println(custDetails.getAddress());
-//		 System.out.println(custDetails.getMobile());
+		 System.out.println(custDetails.getAddress());
+		 System.out.println(custDetails.getMobile());
 		 System.out.println(custDetails.getEmail());
-//		 System.out.println(custDetails.getFullName());
-//		 System.out.println(custDetails.getUrlAadhar());
-//		 System.out.println(custDetails.getUrlPanCard());
-		// Role role =new Role();
-		 //role.setRole("USER");
-		 //custDetails.addRoll(role);
-//		 cusRepo.save(custDetails);
+		 System.out.println(custDetails.getFullName());
+		 System.out.println(custDetails.getUrlAadhar());
+		 System.out.println(custDetails.getUrlPanCard());
+		 Role role =new Role();
+		 role.setRole("USER");
+		 custDetails.addRoll(role);
+		 cusRepo.save(custDetails);
 		 
 		  return "customer is added";
 	 }
@@ -140,5 +149,30 @@ public class AdminController {
 		 vendorRepo.save(vendorDetails);
 		 return "Vendor is added";
 	 }
+	 
+	 
+		@GetMapping(value = "/users")
+		public List<CustomerDetails> getAllUserProfile() {
+            
+			return customerRepo.findAll().stream()
+					.filter(customer -> customer.getRoles().stream().allMatch(role -> role.getRole().equals("USER")))
+					.map(customer -> {
+						return extCustomer_Vendor.extract(customer);
+					}).collect(Collectors.toList());
+
+			
+		}
+
+		@GetMapping(value = "/vendors")
+		public List<VendorDetails> getAllVendors() {
+
+			return vendorRepo.findAll().stream()
+					.filter(vendor -> vendor.getRoles().stream().allMatch(role -> role.getRole().equals("VENDOR")))
+					.map(vendor -> {
+						return extCustomer_Vendor.extract(vendor);
+					}).collect(Collectors.toList());
+
+		}
+	 
 
 }

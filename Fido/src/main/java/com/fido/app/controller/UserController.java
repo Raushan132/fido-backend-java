@@ -1,7 +1,5 @@
 package com.fido.app.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.CustomerDetails;
 import com.fido.app.repository.CustomerRepo;
+import com.fido.app.services.Extract_Customer_Vendor;
 
 @RestController
 public class UserController {
@@ -18,20 +17,16 @@ public class UserController {
 	@Autowired
 	private CustomerRepo customerRepo;
 
+	@Autowired
+	private Extract_Customer_Vendor extCustomer_Vendor;
+
+	
+	
 	@GetMapping(value = "/userProfile/{id}")
 	public CustomerDetails getUserProfile(@PathVariable("id") long id) {
 
-//		var userDetail=userRepo.findById(id).orElseThrow();
-//		System.out.println();
+		return extCustomer_Vendor.extract(customerRepo.findById(id).orElseThrow());
 
-		return customerRepo.findById(id).orElseThrow();
-	}
-	
-	@GetMapping(value="/userProfile")
-	public List<CustomerDetails> getAllUserProfile(){
-		  
-		  System.out.println("here:31"+customerRepo.findAll());
-		  return customerRepo.findAll();
 	}
 
 	@PutMapping(value = "/updateUserProfile")

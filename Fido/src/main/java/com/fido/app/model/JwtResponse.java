@@ -1,4 +1,4 @@
-package com.fido.app.model;
+ package com.fido.app.model;
 
 import lombok.Data;
 
