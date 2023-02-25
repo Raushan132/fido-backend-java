@@ -30,6 +30,5 @@ public class Details extends User_Vendor_Auth {/**
 	private String urlPanCard;
 	private String urlAadhar;
 	
-	
 
 }

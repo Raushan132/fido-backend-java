@@ -29,11 +29,13 @@ public class UserController {
 
 	}
 
-	@PutMapping(value = "/updateUserProfile")
+	@PutMapping(value = "/userProfile")
 	public String upadateUserProfile(@RequestBody CustomerDetails customerDetail) {
-
+        
+		System.out.println(customerDetail);
+		System.out.println(customerDetail.getAddress());
+		System.out.println(customerDetail.getEmail());
 		customerRepo.save(customerDetail);
-
 		return "Data is updated";
 
 	}

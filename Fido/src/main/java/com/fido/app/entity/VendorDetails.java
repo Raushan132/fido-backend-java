@@ -16,5 +16,6 @@ public class VendorDetails extends Details {
 	private static final long serialVersionUID = 1L;
 	private String urlBusinessDoc;
 	private String vendorCode;
+	private String gst;
 
 }

@@ -24,6 +24,7 @@ public class CardDetail {
 	private String expDate;
 	private boolean activate;
 	private long customerId;
+	private String cardType;
 	 
 
 }
