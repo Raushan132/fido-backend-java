@@ -68,6 +68,11 @@ public class VendorController {
 		return products;
 	}
 	
+	@GetMapping("/product/{id}")
+	public List<VendorProduct> getProductByVendorId(@PathVariable("id") long id) {
+		 return productReop.findAllByProuductOwnerId(id);
+	}
+	
 	@GetMapping(value="/getProductDetails/{id}")
 	public VendorProduct getProductById(@PathVariable("id") long id) {
 		

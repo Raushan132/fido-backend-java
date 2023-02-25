@@ -17,12 +17,13 @@ public class CardController {
 		return "All Cards";
 	}
 	
-	@PostMapping("/cards/{id}")
+	@PostMapping("/cards")
 	public String addCards(@RequestBody CardDetail card) {
 		System.out.println(card);
 		
 		return "card is added";
 	}
+	
 	
 
 }
