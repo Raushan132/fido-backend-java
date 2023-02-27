@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.VendorProduct;
 import com.fido.app.repository.VendorProductReop;
+import com.fido.app.repository.VendorRepo;
 
 /**
  * <p>
@@ -34,6 +35,9 @@ public class VendorController {
 	@Autowired
 	private VendorProductReop productReop;
 	
+	@Autowired
+	private VendorRepo vendorRepo;
+	
 	
 	
 	@GetMapping(value = "/vendor")
@@ -52,8 +56,9 @@ public class VendorController {
 	
 	@PutMapping(value="/setProduct")
 	public String setProduct(@RequestBody VendorProduct product) {
-		  
-		  product.setProuductOwnerId(1);
+		  Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		  var temp=vendorRepo.findByEmail(auth.getName()).orElseThrow();
+		  product.setProuductOwnerId(temp.getId());
 		  productReop.save(product);
 		  
 		return "Store succussfull";

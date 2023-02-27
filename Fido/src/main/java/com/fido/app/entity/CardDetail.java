@@ -28,6 +28,7 @@ public class CardDetail extends BaseEntity {
 	private boolean activate;
 	private long customerId;
 	private String cardType;
+	private String amount;
 	 
 
 }

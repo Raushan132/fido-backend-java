@@ -109,7 +109,7 @@ public class AdminController {
 
 		
 		 
-		 System.out.println(custDetails);
+		
 		
 		 Role role =new Role();
 		 role.setRole("USER");
