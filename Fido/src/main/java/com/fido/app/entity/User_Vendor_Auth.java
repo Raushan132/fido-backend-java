@@ -32,7 +32,7 @@ import lombok.Setter;
 @Setter
 @Inheritance(strategy = InheritanceType.JOINED)
 
-public class User_Vendor_Auth implements UserDetails {
+public class User_Vendor_Auth extends BaseEntity implements UserDetails {
 	
 	/**
 	 * 

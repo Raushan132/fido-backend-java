@@ -20,7 +20,7 @@ public class CardController {
 	@PostMapping("/cards")
 	public String addCards(@RequestBody CardDetail card) {
 		System.out.println(card);
-		
+				
 		return "card is added";
 	}
 	

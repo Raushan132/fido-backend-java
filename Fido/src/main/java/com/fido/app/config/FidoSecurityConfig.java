@@ -49,12 +49,13 @@ public class FidoSecurityConfig {
 		http.authorizeHttpRequests((authz) -> {
 			try {
 				authz.antMatchers("/test").permitAll().antMatchers("/token").permitAll()
-				.antMatchers("/getProduct").permitAll()
-				.antMatchers("/setProduct").permitAll()
-				.antMatchers("/getProductDetails/{id}").permitAll()
-				.antMatchers("/getDeleteProduct/{id}").authenticated()
+//				.antMatchers("/getProduct").permitAll()
+//				.antMatchers("/setProduct").permitAll()
+//				.antMatchers("/getProductDetails/{id}").permitAll()
+//				.antMatchers("/getDeleteProduct/{id}").authenticated()
+//				.antMatchers("/vendorProfile").authenticated()
 //				.antMatchers("/userProfile/{id}").permitAll()
-						.anyRequest().permitAll()
+						.anyRequest().authenticated()
 						 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -10,10 +10,13 @@ import javax.persistence.Id;
 import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Data
-public class CardDetail {
+@EqualsAndHashCode(callSuper=true)
+
+public class CardDetail extends BaseEntity {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "native")

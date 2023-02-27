@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -57,6 +58,7 @@ public class AdminController {
 	private Extract_Customer_Vendor extCustomer_Vendor;
 	
 	
+//	 user/ customer data get put post below...
 	
 	@GetMapping(value = "/users")
 	public List<CustomerDetails> getAllUserProfile() {
@@ -69,29 +71,12 @@ public class AdminController {
 
 		
 	}
-
-	@GetMapping(value = "/vendors")
-	public List<VendorDetails> getAllVendors() {
-
-		return vendorRepo.findAll().stream()
-				.filter(vendor -> vendor.getRoles().stream().allMatch(role -> role.getRole().equals("VENDOR")))
-				.map(vendor -> {
-					return extCustomer_Vendor.extract(vendor);
-				}).collect(Collectors.toList());
-
-	}
 	
-	 @PostMapping("/admin")
-	 public String getAdmin() throws IOException {
-		
-				 
-//		 System.out.println(userAuth);
-		 
-		 return "hello Admin";
-		 
-	 }
-	 
-	 
+	 @GetMapping(value = "/userProfile/{id}")
+		public CustomerDetails getUserProfileById(@PathVariable("id") long id) {
+			return extCustomer_Vendor.extract(customerRepo.findById(id).orElseThrow());
+
+		}
 	 
 	 @PostMapping("/customer")
 	 public String addCustomer(@RequestParam String customer,
@@ -113,14 +98,10 @@ public class AdminController {
 		 try {
 			 @SuppressWarnings("rawtypes")
 			Map store=  cloudinary.uploader().upload(file1.getBytes(), ObjectUtils.emptyMap());
-			System.out.println(store);
-		    System.out.println(store.get("secure_url"));
-		    custDetails.setUrlAadhar((String)store.get("secure_url"));
+			 custDetails.setUrlAadhar((String)store.get("secure_url"));
 		    
 			store=  cloudinary.uploader().upload(file2.getBytes(), ObjectUtils.emptyMap());
-			System.out.println(store);
-		    System.out.println(store.get("secure_url"));
-		    custDetails.setUrlPanCard((String)store.get("secure_url"));
+			 custDetails.setUrlPanCard((String)store.get("secure_url"));
 
 		 } catch (IOException exception) {
 			  System.out.println(exception.getMessage());
@@ -137,6 +118,32 @@ public class AdminController {
 		 
 		  return "customer is added";
 	 }
+		
+	
+//	 vendor data get put post below...
+
+	@GetMapping(value = "/vendors")
+	public List<VendorDetails> getAllVendors() {
+
+		return vendorRepo.findAll().stream()
+				.filter(vendor -> vendor.getRoles().stream().allMatch(role -> role.getRole().equals("VENDOR")))
+				.map(vendor -> {
+					return extCustomer_Vendor.extract(vendor);
+				}).collect(Collectors.toList());
+
+	}
+	
+	 @GetMapping("/vendorProfile/{id}")
+		public VendorDetails getVendorProfileById(@PathVariable("id") long id) {
+			
+			 return extCustomer_Vendor.extract(vendorRepo.findById(id).orElseThrow());
+		}
+	
+	
+	 
+	 
+	 
+	
 	 
 	 @PostMapping("/vendor")
 	 public String addVendor(@RequestParam("vendor") String vendor,
@@ -144,7 +151,7 @@ public class AdminController {
 			 @RequestParam("pan") MultipartFile file2,
 			 @RequestParam(name="doc",required = false) MultipartFile file3) throws JsonMappingException, JsonProcessingException {
 		 
-		 System.out.println(vendor);
+		 
 		 
 		 ObjectMapper objectMapper= new ObjectMapper();
 		 VendorDetails vendorDetails= objectMapper.readValue(vendor,VendorDetails.class);
@@ -178,9 +185,6 @@ public class AdminController {
 		 vendorRepo.save(vendorDetails);
 		 return "Vendor is added";
 	 }
-	 
-	 
-	
 	 
 
 }

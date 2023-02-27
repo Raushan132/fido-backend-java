@@ -59,6 +59,7 @@ public class TokenController {
 		
 		
 		String token = jwtUtil.generateToken(userDetails);
+		
 		return ResponseEntity.ok(new JwtResponse(token,new ArrayList<>(userVendorAuth.getRoles()).get(0).getRole(),userVendorAuth.getFullName(),jwtRequest.getEmail()));
 	}
 

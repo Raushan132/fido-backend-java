@@ -10,10 +10,12 @@ import javax.persistence.Id;
 import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=true)
 @Entity
-public class VendorProduct {
+public class VendorProduct extends BaseEntity {
 	
 	
 	@Id
