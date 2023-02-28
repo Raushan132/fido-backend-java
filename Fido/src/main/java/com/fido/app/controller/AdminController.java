@@ -108,9 +108,6 @@ public class AdminController {
 			}
 
 		
-		 
-		
-		
 		 Role role =new Role();
 		 role.setRole("USER");
 		 custDetails.addRoll(role);

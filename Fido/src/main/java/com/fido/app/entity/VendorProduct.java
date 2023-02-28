@@ -30,7 +30,7 @@ public class VendorProduct extends BaseEntity {
 	private String category;
 	private String thumbnail;
 	private String brand;
-//	
+	
 //	@ManyToOne
 //	@JoinColumn(name="vendor_id")
 	private long prouductOwnerId;
