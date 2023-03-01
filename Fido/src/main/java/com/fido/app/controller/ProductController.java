@@ -3,8 +3,6 @@ package com.fido.app.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,11 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.VendorProduct;
 import com.fido.app.repository.VendorProductReop;
-import com.fido.app.repository.VendorRepo;
+import com.fido.app.services.AuthDetail;
 
 /**
  * <p>
- *    VendorController</br> 
+ *    Product Controller</br> 
  *      add the product by vendor and ADMIN</br>
  *      get all the product by vendor and ADMIN</br>
  *      get  specific product detail by id and email</br>
@@ -30,24 +28,25 @@ import com.fido.app.repository.VendorRepo;
  */
 
 @RestController
-public class VendorController {
+public class ProductController {
 	
 	@Autowired
 	private VendorProductReop productReop;
 	
+		
 	@Autowired
-	private VendorRepo vendorRepo;
+	private AuthDetail authDetail;
 	
 	
 	
 	@GetMapping(value = "/vendor")
 	public String getVendor() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		System.out.println(auth.getPrincipal());// return UserAuth class
-		System.out.println(auth.getDetails());
-		System.out.println(auth.getCredentials());
-		System.out.println(auth.getName()); //return email
-		System.out.println(auth.getAuthorities().stream().allMatch(role-> role.getAuthority().equals("ADMIN")));
+//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//		System.out.println(auth.getPrincipal());// return UserAuth class
+//		System.out.println(auth.getDetails());
+//		System.out.println(auth.getCredentials());
+//		System.out.println(auth.getName()); //return email
+//		System.out.println(auth.getAuthorities().stream().allMatch(role-> role.getAuthority().equals("ADMIN")));
 		
 		return "vendor product is available";
 	}
@@ -56,8 +55,8 @@ public class VendorController {
 	
 	@PutMapping(value="/setProduct")
 	public String setProduct(@RequestBody VendorProduct product) {
-		  Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		  var temp=vendorRepo.findByEmail(auth.getName()).orElseThrow();
+		  
+		var temp=authDetail.getVendorDetail();
 		  product.setProuductOwnerId(temp.getId());
 		  productReop.save(product);
 		  
@@ -78,6 +77,13 @@ public class VendorController {
 		 return productReop.findAllByProuductOwnerId(id);
 	}
 	
+	@GetMapping("/vendorProducts")
+	public List<VendorProduct> getProductByVendor(){
+	 
+		var temp=authDetail.getVendorDetail();
+	    return productReop.findAllByProuductOwnerId(temp.getId());
+	}
+	
 	@GetMapping(value="/getProductDetails/{id}")
 	public VendorProduct getProductById(@PathVariable("id") long id) {
 		
@@ -87,10 +93,9 @@ public class VendorController {
 	@DeleteMapping(value="/getDeleteProduct/{id}")
 	public boolean getDeleteProduct(@PathVariable("id") long id) {
 		
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			   
-		   if(!auth.getAuthorities().stream().allMatch(role-> role.getAuthority().equals("ADMIN"))) 
-		   return false;
+						   
+		   if(!authDetail.isAdmin()) 
+			   return false;
 		    	
 		    
 		  productReop.deleteById(id);

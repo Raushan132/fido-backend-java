@@ -1,9 +1,6 @@
 package com.fido.app.controller;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.fido.app.entity.CardDetail;
 import com.fido.app.entity.CustomerDetails;
@@ -26,7 +21,9 @@ import com.fido.app.entity.Role;
 import com.fido.app.entity.VendorDetails;
 import com.fido.app.repository.CustomerRepo;
 import com.fido.app.repository.VendorRepo;
+import com.fido.app.services.AuthDetail;
 import com.fido.app.services.Extract_Customer_Vendor;
+import com.fido.app.services.UploadFile;
 
 
 /**
@@ -42,8 +39,8 @@ import com.fido.app.services.Extract_Customer_Vendor;
 public class AdminController {
 	
 	
-//	@Autowired
-//	private UserAuthRepo userAuthRepo;
+	@Autowired
+	private AuthDetail authDetail;
 	
 	@Autowired 
 	private CustomerRepo cusRepo;
@@ -57,12 +54,18 @@ public class AdminController {
 	@Autowired
 	private Extract_Customer_Vendor extCustomer_Vendor;
 	
+	@Autowired
+	private UploadFile uploadFile;
+	
 	
 //	 user/ customer data get put post below...
 	
 	@GetMapping(value = "/users")
-	public List<CustomerDetails> getAllUserProfile() {
+	public List<CustomerDetails> getAllUserProfile() throws Exception {
         
+		if(authDetail.isUser())
+			throw new Exception("Invalid User");
+		
 		return customerRepo.findAll().stream()
 				.filter(customer -> customer.getRoles().stream().allMatch(role -> role.getRole().equals("USER")))
 				.map(customer -> {
@@ -80,8 +83,8 @@ public class AdminController {
 	 
 	 @PostMapping("/customer")
 	 public String addCustomer(@RequestParam String customer,
-		 		@RequestParam(name="aadhar",required = false) MultipartFile file1,
-		 		@RequestParam(name="pan",required = false) MultipartFile file2) throws JsonMappingException, JsonProcessingException {
+		 		@RequestParam("aadhar") MultipartFile file1,
+		 		@RequestParam("pan") MultipartFile file2) throws JsonMappingException, JsonProcessingException {
 		 
 		 System.out.println(customer);
 		
@@ -90,23 +93,11 @@ public class AdminController {
 		 CustomerDetails custDetails= objectMapper.readValue(customer,CustomerDetails.class);
 		 
 		 //send files to the CLoudinary api...
-		 Map<String,String> config = new HashMap<>();
-		 config.put("cloud_name", "dkw5iydb1");
-		 config.put("api_key", "123235391421445");
-		 config.put("api_secret", "99vLhxjkQ_PmROAlAsaipHXZpUU");
-		 Cloudinary cloudinary = new Cloudinary(config);
-		 try {
-			 @SuppressWarnings("rawtypes")
-			Map store=  cloudinary.uploader().upload(file1.getBytes(), ObjectUtils.emptyMap());
-			 custDetails.setUrlAadhar((String)store.get("secure_url"));
-		    
-			store=  cloudinary.uploader().upload(file2.getBytes(), ObjectUtils.emptyMap());
-			 custDetails.setUrlPanCard((String)store.get("secure_url"));
+		 String url=uploadFile.getUploadFile(file1);
+		 custDetails.setUrlAadhar(url);
 
-		 } catch (IOException exception) {
-			  System.out.println(exception.getMessage());
-			}
-
+		 url=uploadFile.getUploadFile(file2);
+		 custDetails.setUrlPanCard(url);
 		
 		 Role role =new Role();
 		 role.setRole("USER");
@@ -120,8 +111,11 @@ public class AdminController {
 //	 vendor data get put post below...
 
 	@GetMapping(value = "/vendors")
-	public List<VendorDetails> getAllVendors() {
-
+	public List<VendorDetails> getAllVendors() throws Exception {
+		
+		if(!authDetail.isAdmin())
+				throw new Exception("Invalid USER");
+		
 		return vendorRepo.findAll().stream()
 				.filter(vendor -> vendor.getRoles().stream().allMatch(role -> role.getRole().equals("VENDOR")))
 				.map(vendor -> {
@@ -154,27 +148,17 @@ public class AdminController {
 		 VendorDetails vendorDetails= objectMapper.readValue(vendor,VendorDetails.class);
 		 
 //		 send files to the CLoudinary api...
-		 Map<String,String> config = new HashMap<>();
-		 config.put("cloud_name", "dkw5iydb1");
-		 config.put("api_key", "123235391421445");
-		 config.put("api_secret", "99vLhxjkQ_PmROAlAsaipHXZpUU");
-		 Cloudinary cloudinary = new Cloudinary(config);
-		 try {
-			 @SuppressWarnings("rawtypes")
-			Map store=  cloudinary.uploader().upload(file1.getBytes(), ObjectUtils.emptyMap());
-			
-		    vendorDetails.setUrlAadhar((String)store.get("secure_url"));
-		    
-			store=  cloudinary.uploader().upload(file2.getBytes(), ObjectUtils.emptyMap());
-			vendorDetails.setUrlPanCard((String)store.get("secure_url"));
+		   String url= uploadFile.getUploadFile(file1);
+		   vendorDetails.setUrlAadhar(url);
+		   
+		   url = uploadFile.getUploadFile(file2);
+		   vendorDetails.setUrlPanCard(url);
 			
 			if(file3 !=null) {
-			store= cloudinary.uploader().upload(file3.getBytes(), ObjectUtils.emptyMap());
-			vendorDetails.setUrlBusinessDoc((String)store.get("secure_url"));
+				url = uploadFile.getUploadFile(file3);
+				   vendorDetails.setUrlBusinessDoc(url);
 			}
-		 } catch (IOException exception) {
-			  System.out.println(exception.getMessage());
-			}
+		
 		 
 		 Role role=new Role();
 		 role.setRole("VENDOR");

@@ -1,7 +1,6 @@
 package com.fido.app.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +10,7 @@ import com.fido.app.entity.CustomerDetails;
 import com.fido.app.entity.VendorDetails;
 import com.fido.app.repository.CustomerRepo;
 import com.fido.app.repository.VendorRepo;
+import com.fido.app.services.AuthDetail;
 import com.fido.app.services.Extract_Customer_Vendor;
 
 @RestController
@@ -21,15 +21,17 @@ public class UserController {
 
 	@Autowired
 	private VendorRepo vendorRepo;
+	
+	@Autowired
+	private AuthDetail authDetail;
 
 	@Autowired
 	private Extract_Customer_Vendor extCustomer_Vendor;
 
 	@GetMapping(value = "/userProfile")
 	public CustomerDetails getUserProfile() {
-		String email= SecurityContextHolder.getContext().getAuthentication().getName();
 		
-		return extCustomer_Vendor.extract(customerRepo.findByEmail(email).orElseThrow());
+		return extCustomer_Vendor.extract(authDetail.getCustomerDetail());
 	}
 
 	@PutMapping(value = "/userProfile")
@@ -49,9 +51,8 @@ public class UserController {
 
 	@GetMapping("/vendorProfile")
 	public VendorDetails getVendorProfile() {
-		String email= SecurityContextHolder.getContext().getAuthentication().getName();
 		
-		return extCustomer_Vendor.extract(vendorRepo.findByEmail(email).orElseThrow());
+		return extCustomer_Vendor.extract(authDetail.getVendorDetail());
 	}
 
 	@PutMapping(value = "/vendorProfile")

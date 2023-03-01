@@ -3,7 +3,6 @@ package com.fido.app.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.CardDetail;
-import com.fido.app.repository.CustomerRepo;
+import com.fido.app.services.AuthDetail;
 import com.fido.app.services.CardService;
 
 @RestController
@@ -20,11 +19,12 @@ import com.fido.app.services.CardService;
 public class CardController {
 	
 	
-	@Autowired
-	private CustomerRepo customerRepo;
-	
+		
 	@Autowired 
 	CardService cardService;
+	
+	@Autowired
+	private AuthDetail authDetail;
 	
 	
 	@GetMapping("/cards")
@@ -46,19 +46,24 @@ public class CardController {
 	
 	@GetMapping("/card")
 	public List<CardDetail> getCard() {
-		String email= SecurityContextHolder.getContext().getAuthentication().getName();
-		var temp=customerRepo.findByEmail(email).orElseThrow();
+		
+		var temp=authDetail.getCustomerDetail();
 		return cardService.getCardByCustomerId(temp.getId());
 	}
 	
 	@PostMapping("/card")
 	public CardDetail addCards(@RequestBody CardDetail card) throws Exception {
 		
+		if(!authDetail.isAdmin())
+			throw new Exception("Invild User Only For Admin");
+		
 		card=cardService.createCard(card.getCardType(), card.getCustomerId());
 
 		System.out.println(card);		
 		return card;
 	}
+	
+	
 	
 	
 	
