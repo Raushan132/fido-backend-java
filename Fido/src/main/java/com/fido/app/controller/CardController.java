@@ -28,8 +28,8 @@ public class CardController {
 	
 	
 	@GetMapping("/cards")
-	public String getCards() {
-		return "All Cards";
+	public List<CardDetail> getCards() {
+		return cardService.getAllCard();
 	}
 	
 	@GetMapping("/card/{id}")

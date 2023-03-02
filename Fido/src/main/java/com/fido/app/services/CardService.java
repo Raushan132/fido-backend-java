@@ -42,6 +42,9 @@ public class CardService {
 		
 	}
 	
+	public List<CardDetail> getAllCard(){
+		return cardRepo.findAll();
+	}
 	public List<CardDetail> getCardByCustomerId(long id) {
 		   
 		   return cardRepo.findByCustomerId(id);
@@ -63,7 +66,6 @@ public class CardService {
 		Predicate<CardDetail> isCardTypePersent= (card)->card.getCardType().equalsIgnoreCase(cardType);
 		Predicate<CardDetail> isNotExpire=(card)->{
 			String[] date=card.getExpDate().split("[/]");
-			
 			return !((Integer.parseInt(date[1]) <= year) &&   (Integer.parseInt(date[0])<month));
 			
 			};
