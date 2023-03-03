@@ -100,6 +100,7 @@ public class ProductController {
 	public List<VendorProduct> getProductByVendor(){
 	 
 		var temp=authDetail.getVendorDetail();
+		System.out.println("here-235");
 	    return productReop.findAllByProuductOwnerId(temp.getId());
 	}
 	

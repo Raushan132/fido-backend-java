@@ -21,8 +21,8 @@ public class AuditorAwareImp implements AuditorAware<String> {
 	public Optional<String> getCurrentAuditor() {
 		// TODO Auto-generated method stub
 		Authentication auth= SecurityContextHolder.getContext().getAuthentication();
-		List<String> list=auth.getAuthorities().stream().map(role->role.getAuthority()).collect(Collectors.toList()); 
-	      return Optional.ofNullable(list.get(0));
+//		List<String> list=auth.getAuthorities().stream().map(role->role.getAuthority()).collect(Collectors.toList()); 
+	      return Optional.ofNullable(auth.getName());
 		
 	}
 }

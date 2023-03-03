@@ -36,7 +36,7 @@ public class CardService {
 		card.setExpDate(expDate);
 		card.setCvv(generateCvv());
 		card.setAmount(getAmount(cardType));
-//		card=cardRepo.save(card);
+		card=cardRepo.save(card);
 		
 		return card;
 		
@@ -66,7 +66,7 @@ public class CardService {
 		Predicate<CardDetail> isCardTypePersent= (card)->card.getCardType().equalsIgnoreCase(cardType);
 		Predicate<CardDetail> isNotExpire=(card)->{
 			String[] date=card.getExpDate().split("[/]");
-			return !((Integer.parseInt(date[1]) <= year) &&   (Integer.parseInt(date[0])<month));
+			return !((Integer.parseInt(date[1]) < year) ?true: (Integer.parseInt(date[1]) == year)? (Integer.parseInt(date[0])<month):false);
 			
 			};
 //			System.out.println("isCardTypePersent:"+isCardTypePersent+" isNotExpire:"+isNotExpire);
