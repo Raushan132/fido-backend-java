@@ -1,10 +1,11 @@
 package com.fido.app.entity;
 
-import java.util.List;
-
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
+import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Data;
 
@@ -13,8 +14,13 @@ import lombok.Data;
 public class CustProductIds {
     
 	@Id
-	private long customerId;
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
+	@GenericGenerator(name="native", strategy = "native")
+	private long cpid;
 	
-	@ElementCollection
-	private List<Long> productIds;
+	private long customerIds;
+
+	private long productIds;
+	
+	
 }

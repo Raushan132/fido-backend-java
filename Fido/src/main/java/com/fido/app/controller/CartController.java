@@ -42,14 +42,16 @@ public class CartController {
 
 	
 		try {
-			CustProductIds productIds = cartIdsRepo.findByCustomerId(customerId).orElseThrow();
+			List<CustProductIds> productIds = cartIdsRepo.getAllProductIdsByCustomerIds(customerId);
 
-			Function<Long, VendorProduct> fun = (id) -> {
+			Function<CustProductIds, VendorProduct> fun = (cpIds) -> {
 
-				return vendorProductReop.findById(id).orElseThrow();
+				return vendorProductReop.findById(cpIds.getProductIds()).orElseThrow();
 			};
 			
-		  return	productIds.getProductIds().stream().map(fun).collect(Collectors.toList());
+			return productIds.stream().map(fun).collect(Collectors.toList());
+			
+		
 
 		   
 		} catch (NoSuchElementException e) {
@@ -59,19 +61,35 @@ public class CartController {
 
 	}
 	
-	@DeleteMapping("/cart/{pid}/{cid}")
-	public boolean deleteProductId(@PathVariable("pid") long productId ,@PathVariable("cid") long customerId) {
-		     cartIdsRepo.deleteByProductIdsAndCustomerId(productId,customerId);
+	
+	
+	@DeleteMapping("/cart")
+	public boolean deleteProductId(@RequestBody Cart cart) {
+		System.out.println("cart:"+cart);
+//		List<Long> pids=extractCart.extractIdsFormProudcts(cart.getVendorProducts());
+//		pids.stream().forEach(pid->cartIdsRepo.deleteByCustomerIdsAndProductIds(cart.getCustomerId(), pid));
+		
 		return true;
 	}
+	
+
 
 	@PostMapping("/cart")
 	public long acceptProduct(@RequestBody Cart cart) {
 		System.out.println(cart);
-		CustProductIds cpIds = new CustProductIds();
-		cpIds.setCustomerId(cart.getCustomerId());
-		cpIds.setProductIds(extractCart.extractIdsFormProudcts(cart.getVendorProducts()));
-		cartIdsRepo.save(cpIds);
-		return cpIds.getProductIds().size();
+		
+		List<Long> pids=extractCart.extractIdsFormProudcts(cart.getVendorProducts());
+		System.out.println(pids);
+		pids.stream().forEach(pid->{		
+			  CustProductIds cpIds =  new CustProductIds();
+			    cpIds.setCustomerIds(cart.getCustomerId());
+			    cpIds.setProductIds(pid);
+			    cartIdsRepo.save(cpIds);
+			});
+		return countOfProductInCart(cart.getCustomerId());
+	}
+	
+	private long countOfProductInCart(long customerIds) {
+		 return cartIdsRepo.countByCustomerIds(customerIds);
 	}
 }
