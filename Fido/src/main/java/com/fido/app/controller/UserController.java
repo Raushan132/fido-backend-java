@@ -1,17 +1,22 @@
 package com.fido.app.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.CustomerDetails;
+import com.fido.app.entity.Invoice;
 import com.fido.app.entity.VendorDetails;
 import com.fido.app.repository.CustomerRepo;
 import com.fido.app.repository.VendorRepo;
 import com.fido.app.services.AuthDetail;
 import com.fido.app.services.Extract_Customer_Vendor;
+import com.fido.app.services.InvoiceGenerator;
 
 @RestController
 public class UserController {
@@ -24,6 +29,9 @@ public class UserController {
 	
 	@Autowired
 	private AuthDetail authDetail;
+	
+	@Autowired
+	private InvoiceGenerator invoiceGenerator;
 
 	@Autowired
 	private Extract_Customer_Vendor extCustomer_Vendor;
@@ -32,6 +40,18 @@ public class UserController {
 	public CustomerDetails getUserProfile() {
 		
 		return extCustomer_Vendor.extract(authDetail.getCustomerDetail());
+	}
+	
+	@GetMapping("/invoices/{cid}")
+	public List<Invoice> getAllInvoiceById(@PathVariable("cid") long id){
+	 String email=	customerRepo.findById(id).orElseThrow().getEmail();
+		return invoiceGenerator.getInvoiceByCustomerEmail(email);
+	 
+	}
+	
+	@GetMapping("/invoices")
+	public List<Invoice>getAllInvoiceByCustomerEmail(){
+		return invoiceGenerator.getInvoiceByCustomerEmail(authDetail.getCustomerDetail().getEmail());
 	}
 
 	@PutMapping(value = "/userProfile")

@@ -23,6 +23,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +33,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Inheritance(strategy = InheritanceType.JOINED)
-
+@JsonIgnoreProperties({"password","enabled","accountNonLocked","credentialsNonExpired","accountNonExpired","authorities","roles"})
 public class User_Vendor_Auth extends BaseEntity implements UserDetails {
 	
 	/**
@@ -44,6 +46,7 @@ public class User_Vendor_Auth extends BaseEntity implements UserDetails {
 	private long id;
 	private String fullName;
 	private String email;
+
 	private String password;
 	
 	@ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)

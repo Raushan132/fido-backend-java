@@ -15,5 +15,6 @@ public interface CartIdsRepo extends JpaRepository<CustProductIds, Long> {
 	long countByCustomerIds(long id);
 	
 	void deleteByCustomerIdsAndProductIds(long cid,long pid);
+	void deleteByCustomerIds(long cid);
 
 }

@@ -6,6 +6,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -53,8 +55,7 @@ public class ProductController {
 //		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 //		System.out.println(auth.getPrincipal());// return UserAuth class
 //		System.out.println(auth.getDetails());
-//		System.out.println(auth.getCredentials());
-//		System.out.println(auth.getName()); //return email
+		//		System.out.println(auth.getName()); //return email
 //		System.out.println(auth.getAuthorities().stream().allMatch(role-> role.getAuthority().equals("ADMIN")));
 		
 		return "vendor product is available";
@@ -100,8 +101,7 @@ public class ProductController {
 	public List<VendorProduct> getProductByVendor(){
 	 
 		var temp=authDetail.getVendorDetail();
-		System.out.println("here-235");
-	    return productReop.findAllByProuductOwnerId(temp.getId());
+		 return productReop.findAllByProuductOwnerId(temp.getId());
 	}
 	
 	@GetMapping(value="/getProductDetails/{id}")

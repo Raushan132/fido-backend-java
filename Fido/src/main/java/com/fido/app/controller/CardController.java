@@ -1,6 +1,7 @@
 package com.fido.app.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +36,12 @@ public class CardController {
 	@GetMapping("/card/{id}")
 	public List<CardDetail> getCardByCustomerId(@PathVariable("id") long id) {
 		 return cardService.getCardByCustomerId(id);
+	}
+	
+	@GetMapping("/activeCard/{id}")
+	public List<CardDetail> getActivedCardByCustomerId(@PathVariable("id") long id){
+		return cardService.getCardByCustomerId(id).stream().filter(card->card.isActivate()).collect(Collectors.toList());
+		
 	}
 	
 	@GetMapping("/invertActive/{cardId}")

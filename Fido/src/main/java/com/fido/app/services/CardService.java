@@ -21,7 +21,7 @@ public class CardService {
 
 	public CardDetail createCard(String cardType, long customerId) throws Exception {
 		
-		System.out.println(cardType+":"+cardType.equalsIgnoreCase("GOLD"));
+		
 	
 		if(this.isCardExist(customerId, cardType)) throw new Exception(cardType+" Card is already exist");
 		
@@ -50,37 +50,57 @@ public class CardService {
 		   return cardRepo.findByCustomerId(id);
 	}
 	
+	public List<CardDetail> getCardByCustomerIdAndCardType(long id,String cardType) {
+		   
+		   return cardRepo.findByCustomerIdAndCardType(id,cardType);
+	}
+	
+	public CardDetail getCardByCustomerIdAndCardId(long id,long cardId) throws Exception {
+		try {
+		return cardRepo.findByCustomerIdAndId(id,cardId).orElseThrow();
+		}catch(Exception e) {
+			throw new Exception("Card is not Find");
+		}
+	}
+	
 	public boolean invertCardStatus(long id) {
 		  var temp=  cardRepo.findById(id).orElseThrow();
 		  temp.setActivate(!temp.isActivate());
 		  return temp.isActivate();
 	}
 	
+	public void updateCard(CardDetail card) {
+		cardRepo.save(card);
+	}
+	
 	private boolean isCardExist(long id,String cardType){
 		
 		System.out.println("i am here 321 "+id);
-		int year=LocalDate.now().getYear();
-		int month=LocalDate.now().getMonthValue();
 		
-		var cards= cardRepo.findByCustomerId(id);
+		
+		var cards= getCardByCustomerIdAndCardType(id,cardType);
+		if(cards.isEmpty()) return false;
 		Predicate<CardDetail> isCardTypePersent= (card)->card.getCardType().equalsIgnoreCase(cardType);
-		Predicate<CardDetail> isNotExpire=(card)->{
-			String[] date=card.getExpDate().split("[/]");
-			return !((Integer.parseInt(date[1]) < year) ?true: (Integer.parseInt(date[1]) == year)? (Integer.parseInt(date[0])<month):false);
+		Predicate<CardDetail> isNotExpire=(card)-> !isCardExpire(card);
 			
-			};
+			
 //			System.out.println("isCardTypePersent:"+isCardTypePersent+" isNotExpire:"+isNotExpire);
 		   return cards.stream().anyMatch(isCardTypePersent.and(isNotExpire));
 	   
 	     
 	}
 	
-	private boolean isCardExpire(CardDetail card) {
+	public boolean isCardExpire(CardDetail card) {
 		int year=LocalDate.now().getYear();
 		int month=LocalDate.now().getMonthValue();
 		String[] date=card.getExpDate().split("[/]");
-		return !((Integer.parseInt(date[1]) < year) ?true: (Integer.parseInt(date[1]) == year)? (Integer.parseInt(date[0])<month):false);
-		
+	
+		boolean isExpire =(Integer.parseInt(date[1]) < year) ?true: (Integer.parseInt(date[1]) == year)? (Integer.parseInt(date[0])<month):false;
+		if(isExpire && card.isActivate()) {
+			 card.setActivate(false);
+			 cardRepo.save(card);
+		}
+		return isExpire;
 	}
 	
 	private String generateCvv() {

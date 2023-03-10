@@ -50,5 +50,23 @@ public class AuthDetail {
 		return vendorRepo.findByEmail(auth.getName()).orElseThrow();
 
 	}
+	
+	public VendorDetails getVendorDetailById(long id) {
+		try {
+		return vendorRepo.findById(id).orElseThrow();
+		}catch(NoSuchElementException exception) {
+			System.out.println("AuthDetail vendor is not found");
+			throw exception;
+		}
+	}
+	
+	public CustomerDetails getCustomerDetailsById(long id) {
+		try {
+		return customerRepo.findById(id).orElseThrow();
+		}catch(NoSuchElementException exception) {
+			System.out.println("AuthDetail Customer is not found");
+			throw exception;
+		}
+	}
 
 }

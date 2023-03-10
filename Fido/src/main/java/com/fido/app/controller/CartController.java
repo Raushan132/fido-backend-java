@@ -66,9 +66,15 @@ public class CartController {
 	@DeleteMapping("/cart")
 	public boolean deleteProductId(@RequestBody Cart cart) {
 		System.out.println("cart:"+cart);
-//		List<Long> pids=extractCart.extractIdsFormProudcts(cart.getVendorProducts());
-//		pids.stream().forEach(pid->cartIdsRepo.deleteByCustomerIdsAndProductIds(cart.getCustomerId(), pid));
+		List<Long> pids=extractCart.extractIdsFormProudcts(cart.getVendorProducts());
+		pids.stream().forEach(pid->cartIdsRepo.deleteByCustomerIdsAndProductIds(cart.getCustomerId(), pid));
 		
+		return true;
+	}
+	
+	@DeleteMapping("/cart/{cid}")
+	public boolean deleteProductByCustomerId(@PathVariable long cid) {
+		cartIdsRepo.deleteById(cid);
 		return true;
 	}
 	
@@ -89,7 +95,8 @@ public class CartController {
 		return countOfProductInCart(cart.getCustomerId());
 	}
 	
-	private long countOfProductInCart(long customerIds) {
+	@GetMapping("/countCart")
+	public long countOfProductInCart(long customerIds) {
 		 return cartIdsRepo.countByCustomerIds(customerIds);
 	}
 }
