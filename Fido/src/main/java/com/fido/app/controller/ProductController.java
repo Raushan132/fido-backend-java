@@ -64,8 +64,8 @@ public class ProductController {
 	
 	
 	@PutMapping(value="/setProduct")
-	public String setProduct(@RequestBody VendorProduct product) {
-		  
+	public String setProduct(@RequestBody VendorProduct product) throws Exception {
+		 System.out.println(product);
 		var temp=authDetail.getVendorDetail();
 		  product.setProuductOwnerId(temp.getId());
 		  productReop.save(product);
@@ -98,7 +98,7 @@ public class ProductController {
 	}
 	
 	@GetMapping("/vendorProducts")
-	public List<VendorProduct> getProductByVendor(){
+	public List<VendorProduct> getProductByVendor() throws Exception{
 	 
 		var temp=authDetail.getVendorDetail();
 		 return productReop.findAllByProuductOwnerId(temp.getId());

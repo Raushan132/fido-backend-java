@@ -33,7 +33,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Inheritance(strategy = InheritanceType.JOINED)
-@JsonIgnoreProperties({"password","enabled","accountNonLocked","credentialsNonExpired","accountNonExpired","authorities","roles"})
+//@JsonIgnoreProperties("enabled","accountNonLocked","credentialsNonExpired","accountNonExpired","authorities","roles"})
 public class User_Vendor_Auth extends BaseEntity implements UserDetails {
 	
 	/**

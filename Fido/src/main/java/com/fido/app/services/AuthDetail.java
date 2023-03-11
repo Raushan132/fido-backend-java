@@ -45,10 +45,14 @@ public class AuthDetail {
 		}
 	}
 
-	public VendorDetails getVendorDetail() {
+	public VendorDetails getVendorDetail() throws Exception {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		try {
 		return vendorRepo.findByEmail(auth.getName()).orElseThrow();
+		}catch(Exception e) {
 
+			throw new Exception("vendor is not find");
+		}
 	}
 	
 	public VendorDetails getVendorDetailById(long id) {

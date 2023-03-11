@@ -98,12 +98,16 @@ public class InvoiceGenerator {
 		invoice.setC_city(customer.getCity());
 		invoice.setC_state(customer.getState());
 		invoice.setC_address(customer.getAddress());
+		invoice.setCFullName(customer.getFullName());
+		invoice.setCMob(customer.getMobile());
 
 		invoice.setV_country(vendor.getCountry());
 		invoice.setV_city(vendor.getCity());
 		invoice.setV_state(vendor.getState());
 		invoice.setV_email(vendor.getEmail());
 		invoice.setV_address(vendor.getAddress());
+		invoice.setVFullName(vendor.getFullName());
+		invoice.setVMob(vendor.getMobile());
 		invoice.setGst(vendor.getGst());
 
 		invoice.setInvoiceDate(LocalDateTime.now().toString());

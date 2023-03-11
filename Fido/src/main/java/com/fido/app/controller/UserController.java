@@ -45,6 +45,7 @@ public class UserController {
 	@GetMapping("/invoices/{cid}")
 	public List<Invoice> getAllInvoiceById(@PathVariable("cid") long id){
 	 String email=	customerRepo.findById(id).orElseThrow().getEmail();
+	 
 		return invoiceGenerator.getInvoiceByCustomerEmail(email);
 	 
 	}
@@ -70,7 +71,7 @@ public class UserController {
 	}
 
 	@GetMapping("/vendorProfile")
-	public VendorDetails getVendorProfile() {
+	public VendorDetails getVendorProfile() throws Exception {
 		
 		return extCustomer_Vendor.extract(authDetail.getVendorDetail());
 	}

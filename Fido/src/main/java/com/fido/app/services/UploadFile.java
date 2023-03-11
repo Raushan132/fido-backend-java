@@ -10,6 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class UploadFile {
          
@@ -28,7 +31,7 @@ public class UploadFile {
 		    
 			
 		 } catch (IOException exception) {
-			  System.out.println(exception.getMessage());
+			  log.error(exception.getMessage());
 			}
 
 		 return "";

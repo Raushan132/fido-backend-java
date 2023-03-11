@@ -9,7 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 
@@ -38,10 +37,20 @@ public class Invoice {
 	private String v_state;
 	private String v_city;
 	private String v_country;
+	
+	@JsonProperty("v_Mob")
+	private String vMob;
+	@JsonProperty("v_fullName")
+	private String vFullName;
 	private String c_address;
 	private String c_state;
 	private String c_city;
 	private String c_country;
+	
+	@JsonProperty("c_fullName")
+	private String cFullName;
+	@JsonProperty("c_Mob")
+	private String cMob;
 	@JsonProperty("c_email")
 	private String cEmail;
 	
