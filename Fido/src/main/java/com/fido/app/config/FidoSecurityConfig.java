@@ -56,7 +56,7 @@ public class FidoSecurityConfig {
 //				.antMatchers("/vendorProfile").authenticated()
 				.antMatchers("/api/vendors").permitAll()
 //				.antMatchers("/userProfile/{id}").permitAll()
-						.anyRequest().permitAll()
+						.anyRequest().authenticated()
 						 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 			} catch (Exception e) {
 				e.printStackTrace();
