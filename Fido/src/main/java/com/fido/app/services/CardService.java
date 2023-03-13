@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fido.app.entity.CardDetail;
+import com.fido.app.exception.CardExpireException;
+import com.fido.app.exception.InvalidException;
 import com.fido.app.repository.CardRepo;
 
 @Transactional
@@ -55,18 +57,22 @@ public class CardService {
 		   return cardRepo.findByCustomerIdAndCardType(id,cardType);
 	}
 	
-	public CardDetail getCardByCustomerIdAndCardId(long id,long cardId) throws Exception {
+	public CardDetail getCardByCustomerIdAndCardId(long id,long cardId) throws InvalidException {
 		try {
 		return cardRepo.findByCustomerIdAndId(id,cardId).orElseThrow();
 		}catch(Exception e) {
-			throw new Exception("Card is not Find");
+			throw new InvalidException("Card is not Find");
 		}
 	}
 	
-	public boolean invertCardStatus(long id) {
+	public boolean invertCardStatus(long id) throws CardExpireException {
+		
+		
 		  var temp=  cardRepo.findById(id).orElseThrow();
+		  if(isCardExpire(temp)) throw new CardExpireException("Card is Expired create new one");
 		  temp.setActivate(!temp.isActivate());
 		  return temp.isActivate();
+		  
 	}
 	
 	public void updateCard(CardDetail card) {
@@ -75,16 +81,14 @@ public class CardService {
 	
 	private boolean isCardExist(long id,String cardType){
 		
-		System.out.println("i am here 321 "+id);
+		
 		
 		
 		var cards= getCardByCustomerIdAndCardType(id,cardType);
 		if(cards.isEmpty()) return false;
 		Predicate<CardDetail> isCardTypePersent= (card)->card.getCardType().equalsIgnoreCase(cardType);
 		Predicate<CardDetail> isNotExpire=(card)-> !isCardExpire(card);
-			
-			
-//			System.out.println("isCardTypePersent:"+isCardTypePersent+" isNotExpire:"+isNotExpire);
+		
 		   return cards.stream().anyMatch(isCardTypePersent.and(isNotExpire));
 	   
 	     

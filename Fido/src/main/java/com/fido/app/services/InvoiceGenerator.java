@@ -17,9 +17,13 @@ import com.fido.app.entity.CustomerDetails;
 import com.fido.app.entity.Invoice;
 import com.fido.app.entity.InvoiceProduct;
 import com.fido.app.entity.VendorDetails;
+import com.fido.app.entity.VendorProduct;
+import com.fido.app.exception.CardExpireException;
+import com.fido.app.exception.OutOfStockException;
 import com.fido.app.model.CartProducts;
 import com.fido.app.repository.CartIdsRepo;
 import com.fido.app.repository.InvoiceRepo;
+import com.fido.app.repository.VendorProductReop;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,18 +34,23 @@ public class InvoiceGenerator {
 
 	@Autowired
 	private CardService cardService;
-	
+
 	@Autowired
 	private InvoiceRepo invoiceRepo;
-	
+
 	@Autowired
 	private CartIdsRepo cartRepo;
 
-	public Invoice getInvoiceData(CustomerDetails custDetails, VendorDetails vendor,
-			List<CartProducts> products, CardDetail card) throws Exception {
-		if (cardService.isCardExpire(card))
-			throw new Exception("Card is Expired");
+	@Autowired
+	private VendorProductReop productReop;
 
+	public Invoice getInvoiceData(CustomerDetails custDetails, VendorDetails vendor, List<CartProducts> products,
+			CardDetail card) throws OutOfStockException,CardExpireException,Exception {
+		if (cardService.isCardExpire(card))
+			throw new CardExpireException("Card is Expired");
+
+		subtractStock(products);
+		
 		var invoiceProducts = products.stream().map(product -> convertInvoiceProduct(product))
 				.collect(Collectors.toList());
 		log.info(invoiceProducts.toString());
@@ -53,17 +62,18 @@ public class InvoiceGenerator {
 		invoice.setGrandTotal(grandTotal.toString());
 
 		log.info(invoice.toString());
+
+		invoice = buyProduct(invoice, card);
+
+		cartRepo.deleteByCustomerIds(custDetails.getId());
 		
-		invoice= buyProduct(invoice,card);
-		
-		cartRepo.deleteByCustomerIds(custDetails.getId());;
-		
+
 		return invoice;
+		
 	}
-	
-	
 
 	private InvoiceProduct convertInvoiceProduct(CartProducts product) {
+
 		var invoiceProduct = new InvoiceProduct();
 		invoiceProduct.setDescription(product.getDescription());
 		invoiceProduct.setTitle(product.getTitle());
@@ -126,29 +136,61 @@ public class InvoiceGenerator {
 			random.append((int) ((Math.random() * 10)));
 		return random.toString();
 	}
-	
-	private Invoice buyProduct(Invoice invoice,CardDetail card) throws Exception {
-		BigDecimal currBalance= new BigDecimal(card.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
-		BigDecimal invoiceBalance= new BigDecimal(invoice.getGrandTotal());
-		if(currBalance.compareTo(invoiceBalance)==-1) throw new Exception("Not Sufficient Balance");
-		
-		currBalance=currBalance.subtract(invoiceBalance);
+
+	private Invoice buyProduct(Invoice invoice, CardDetail card) throws Exception {
+		BigDecimal currBalance = new BigDecimal(card.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
+		BigDecimal invoiceBalance = new BigDecimal(invoice.getGrandTotal());
+		if (currBalance.compareTo(invoiceBalance) == -1)
+			throw new Exception("Not Sufficient Balance");
+
+		currBalance = currBalance.subtract(invoiceBalance);
 		log.info(currBalance.toString());
 		card.setAmount(currBalance.toString());
 		cardService.updateCard(card);
-		
-		invoice=invoiceRepo.save(invoice);
+
+		invoice = invoiceRepo.save(invoice);
 		return invoice;
-			
+
 	}
-	
-	
+boolean error;
+	private void subtractStock(List<CartProducts> products) throws OutOfStockException {
+		List<Long> ids = products.stream().map(product -> product.getId()).collect(Collectors.toList());
+		List<VendorProduct> vProducts = productReop.findAllById(ids);
+		
+		
+		 vProducts= vProducts.stream().map(vProduct->{
+			products.stream().forEach(cProduct->{
+			
+				if(vProduct.getId()==cProduct.getId()) {
+					int qty=Integer.parseInt(cProduct.getQuantity());
+					int stock=Integer.parseInt(vProduct.getStock());
+					if(qty<=stock) {
+						vProduct.setStock(String.valueOf(stock-qty));
+						System.out.println("here213:"+stock+" "+qty);
+					}else error=true;
+				}
+			});
+			
+						
+			return vProduct;
+		}).collect(Collectors.toList());
+		 
+		 if(error) {
+			 error=false;
+			 throw new OutOfStockException("Out of Stock");
+		 }
+		
+		productReop.saveAll(vProducts);
+		
+
+	}
+
 	public Invoice getInvoiceById(long id) {
 		return invoiceRepo.findById(id).orElseThrow();
 	}
-	
-	public List<Invoice> getInvoiceByCustomerEmail(String email){
-		 return invoiceRepo.findAllBycEmail(email);
+
+	public List<Invoice> getInvoiceByCustomerEmail(String email) {
+		return invoiceRepo.findAllBycEmail(email);
 	}
 
 }

@@ -3,6 +3,8 @@ package com.fido.app.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fido.app.entity.CustomerDetails;
 import com.fido.app.entity.Invoice;
 import com.fido.app.entity.VendorDetails;
+import com.fido.app.model.Response;
 import com.fido.app.repository.CustomerRepo;
 import com.fido.app.repository.VendorRepo;
 import com.fido.app.services.AuthDetail;
@@ -44,7 +47,7 @@ public class UserController {
 	
 	@GetMapping("/invoices/{cid}")
 	public List<Invoice> getAllInvoiceById(@PathVariable("cid") long id){
-	 String email=	customerRepo.findById(id).orElseThrow().getEmail();
+	 String email=	authDetail.getCustomerDetailsById(id).getEmail();
 	 
 		return invoiceGenerator.getInvoiceByCustomerEmail(email);
 	 
@@ -56,17 +59,17 @@ public class UserController {
 	}
 
 	@PutMapping(value = "/userProfile")
-	public String upadateUserProfile(@RequestBody CustomerDetails customerDetail) {
+	public ResponseEntity<?> upadateUserProfile(@RequestBody CustomerDetails customerDetail) {
 
 		System.out.println(customerDetail);
 		System.out.println(customerDetail.getAddress());
 		System.out.println(customerDetail.getEmail());
-		var temp = customerRepo.findById(customerDetail.getId()).orElseThrow();
+		var temp = authDetail.getCustomerDetailsById(customerDetail.getId());
 		customerDetail.setPassword(temp.getPassword());
 		customerDetail.setRoles(temp.getRoles());
 
 		customerRepo.save(customerDetail);
-		return "Data is updated";
+		return ResponseEntity.status(HttpStatus.CREATED).body(new Response("201","Customer Detail is updated"));
 
 	}
 
@@ -77,15 +80,16 @@ public class UserController {
 	}
 
 	@PutMapping(value = "/vendorProfile")
-	public String upadateVendorProfile(@RequestBody VendorDetails vendorDetail) {
+	public ResponseEntity<?> upadateVendorProfile(@RequestBody VendorDetails vendorDetail) {
 
 		System.out.println("Vendor is updating");
-		var temp = vendorRepo.findById(vendorDetail.getId()).orElseThrow();
+		var temp = authDetail.getVendorDetailById(vendorDetail.getId());
 		vendorDetail.setPassword(temp.getPassword());
 		vendorDetail.setRoles(temp.getRoles());
 
 		vendorRepo.save(vendorDetail);
-		return "Data is updated";
+		return ResponseEntity.status(HttpStatus.CREATED).body(new Response("201","Vendor Detail is updated"));
+
 	}
 
 }

@@ -12,6 +12,9 @@ import com.fido.app.entity.VendorDetails;
 import com.fido.app.repository.CustomerRepo;
 import com.fido.app.repository.VendorRepo;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class AuthDetail {
 
@@ -40,7 +43,7 @@ public class AuthDetail {
 		try {
 			return customerRepo.findByEmail(auth.getName()).orElseThrow();
 		} catch (NoSuchElementException e) {
-                 System.out.println("No Customer is available in AuthDetail class");
+                 log.info("No Customer is available in AuthDetail class");
                  throw new NoSuchElementException();
 		}
 	}
@@ -59,7 +62,7 @@ public class AuthDetail {
 		try {
 		return vendorRepo.findById(id).orElseThrow();
 		}catch(NoSuchElementException exception) {
-			System.out.println("AuthDetail vendor is not found");
+			log.info("AuthDetail vendor is not found");
 			throw exception;
 		}
 	}
@@ -68,7 +71,7 @@ public class AuthDetail {
 		try {
 		return customerRepo.findById(id).orElseThrow();
 		}catch(NoSuchElementException exception) {
-			System.out.println("AuthDetail Customer is not found");
+			log.info("AuthDetail Customer is not found");
 			throw exception;
 		}
 	}

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.User_Vendor_Auth;
+import com.fido.app.exception.InvalidException;
 import com.fido.app.helper.JwtUtil;
 import com.fido.app.model.JwtRequest;
 import com.fido.app.model.JwtResponse;
@@ -44,13 +45,13 @@ public class TokenController {
 	
 	
 	@PostMapping(value="/token")
-	public ResponseEntity<?> getToken(@RequestBody JwtRequest jwtRequest) throws Exception  {
+	public ResponseEntity<?> getToken(@RequestBody JwtRequest jwtRequest) throws InvalidException  {
 		System.out.println(jwtRequest);
 		try {
 			this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(jwtRequest.getEmail(), jwtRequest.getPassword()));
 		}catch(Exception e) {
 			e.printStackTrace();
-			throw new Exception("Bad Credentials");
+			throw new InvalidException("Bad Credentials");
 		}
 		
 		UserDetails userDetails= this.customUserDetailService.loadUserByUsername(jwtRequest.getEmail());

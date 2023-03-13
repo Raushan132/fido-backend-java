@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fido.app.entity.CustomerDetails;
 import com.fido.app.entity.Role;
 import com.fido.app.entity.VendorDetails;
+import com.fido.app.exception.InvalidException;
 import com.fido.app.repository.CustomerRepo;
 import com.fido.app.repository.VendorRepo;
 import com.fido.app.services.AuthDetail;
@@ -61,10 +62,11 @@ public class AdminController {
 //	 user/ customer data get put post below...
 	
 	@GetMapping(value = "/users")
-	public List<CustomerDetails> getAllUserProfile() throws Exception {
+	public List<CustomerDetails> getAllUserProfile() throws InvalidException {
         
 		if(authDetail.isUser())
-			throw new Exception("Invalid User");
+			throw new InvalidException("Invalid User");
+		
 		
 		return customerRepo.findAll().stream()
 				.filter(customer -> customer.getRoles().stream().allMatch(role -> role.getRole().equals("USER")))
@@ -111,10 +113,10 @@ public class AdminController {
 //	 vendor data get put post below...
 
 	@GetMapping(value = "/vendors")
-	public List<VendorDetails> getAllVendors() throws Exception {
+	public List<VendorDetails> getAllVendors() throws InvalidException {
 		
 		if(!authDetail.isAdmin())
-				throw new Exception("Invalid USER");
+				throw new InvalidException("Invalid USER");
 		
 		return vendorRepo.findAll().stream()
 				.filter(vendor -> vendor.getRoles().stream().allMatch(role -> role.getRole().equals("VENDOR")))

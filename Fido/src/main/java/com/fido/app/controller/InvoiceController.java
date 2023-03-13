@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.Invoice;
+import com.fido.app.exception.OutOfStockException;
 import com.fido.app.model.CartProducts;
 import com.fido.app.services.AuthDetail;
 import com.fido.app.services.CardService;
@@ -35,7 +36,7 @@ public class InvoiceController {
 	
 	
 	@PostMapping("/buyProduct/{cid}/{cardId}")
-	public long getProductFromCart(@PathVariable("cid") long customerId,@RequestBody List<CartProducts> products,@PathVariable long cardId) throws Exception {
+	public long getProductFromCart(@PathVariable("cid") long customerId,@RequestBody List<CartProducts> products,@PathVariable long cardId) throws OutOfStockException,Exception {
 		log.info(products.toString());
 		if(products.isEmpty()) throw new Exception("No product is selected");
 		var vendor =authDetail.getVendorDetail();

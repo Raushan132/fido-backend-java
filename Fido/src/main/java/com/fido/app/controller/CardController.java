@@ -12,9 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.CardDetail;
+import com.fido.app.exception.CardExpireException;
+import com.fido.app.exception.InvalidException;
 import com.fido.app.services.AuthDetail;
 import com.fido.app.services.CardService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class CardController {
@@ -45,9 +50,8 @@ public class CardController {
 	}
 	
 	@GetMapping("/invertActive/{cardId}")
-	public String invertCardStatus(@PathVariable("cardId") long id) {
+	public String invertCardStatus(@PathVariable("cardId") long id) throws CardExpireException {
 		 
-		
 		return cardService.invertCardStatus(id)?"Card is active now":"Card is deactive"; 
 	}
 	
@@ -59,14 +63,14 @@ public class CardController {
 	}
 	
 	@PostMapping("/card")
-	public CardDetail addCards(@RequestBody CardDetail card) throws Exception {
+	public CardDetail addCards(@RequestBody CardDetail card) throws InvalidException,Exception {
 		
 		if(!authDetail.isAdmin())
-			throw new Exception("Invild User Only For Admin");
+			throw new InvalidException("Invild User Only For Admin");
 		
 		card=cardService.createCard(card.getCardType(), card.getCustomerId());
 
-		System.out.println(card);		
+		log.info(card.toString());		
 		return card;
 	}
 	

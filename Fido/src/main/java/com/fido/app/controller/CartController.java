@@ -2,12 +2,15 @@ package com.fido.app.controller;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,10 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fido.app.entity.CustProductIds;
 import com.fido.app.entity.VendorProduct;
 import com.fido.app.model.Cart;
+import com.fido.app.model.Response;
 import com.fido.app.repository.CartIdsRepo;
 import com.fido.app.repository.VendorProductReop;
 import com.fido.app.services.ExtractCart;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Transactional
 @RestController
 @RequestMapping("/api")
@@ -38,9 +45,8 @@ public class CartController {
 	private CartIdsRepo cartIdsRepo;
 
 	@GetMapping("/cart/{id}")
-	public List<VendorProduct> getCartByCustomerId(@PathVariable("id") long customerId) throws Exception {
+	public Set<VendorProduct> getCartByCustomerId(@PathVariable("id") long customerId) throws NoSuchElementException {
 
-	
 		try {
 			List<CustProductIds> productIds = cartIdsRepo.getAllProductIdsByCustomerIds(customerId);
 
@@ -48,55 +54,56 @@ public class CartController {
 
 				return vendorProductReop.findById(cpIds.getProductIds()).orElseThrow();
 			};
-			
-			return productIds.stream().map(fun).collect(Collectors.toList());
-			
-		
 
-		   
+			return productIds.stream().map(fun).collect(Collectors.toSet());
+
 		} catch (NoSuchElementException e) {
 
-			throw new Exception("Customer/Product is not Found in CartConroller at Get/ cart/{id}...");
+			throw new NoSuchElementException("Customer/Product is not Found in CartConroller at Get/ cart/{id}...");
 		}
 
 	}
-	
-	
-	
-	@DeleteMapping("/cart")
-	public boolean deleteProductId(@RequestBody Cart cart) {
-		System.out.println("cart:"+cart);
-		List<Long> pids=extractCart.extractIdsFormProudcts(cart.getVendorProducts());
-		pids.stream().forEach(pid->cartIdsRepo.deleteByCustomerIdsAndProductIds(cart.getCustomerId(), pid));
-		
-		return true;
-	}
-	
-	@DeleteMapping("/cart/{cid}")
-	public boolean deleteProductByCustomerId(@PathVariable long cid) {
-		cartIdsRepo.deleteById(cid);
-		return true;
-	}
-	
 
+	@DeleteMapping("/cart")
+	public ResponseEntity<Response> deleteProductId(@RequestBody Cart cart) {
+		log.info("cart:" + cart);
+		List<Long> pids = extractCart.extractIdsFormProudcts(cart.getVendorProducts());
+		pids.stream().forEach(pid -> cartIdsRepo.deleteByCustomerIdsAndProductIds(cart.getCustomerId(), pid));
+
+		return new ResponseEntity<>(new Response("204", "Cart is deleted"), HttpStatus.OK);
+	}
+
+	@DeleteMapping("/cart/{cid}")
+	public ResponseEntity<Response> deleteProductByCustomerId(@PathVariable long cid) {
+		cartIdsRepo.deleteById(cid);
+
+		return new ResponseEntity<>(new Response("204", "Cart is deleted"), HttpStatus.OK);
+	}
 
 	@PostMapping("/cart")
 	public long acceptProduct(@RequestBody Cart cart) {
-		System.out.println(cart);
-		
-		List<Long> pids=extractCart.extractIdsFormProudcts(cart.getVendorProducts());
-		System.out.println(pids);
-		pids.stream().forEach(pid->{		
-			  CustProductIds cpIds =  new CustProductIds();
-			    cpIds.setCustomerIds(cart.getCustomerId());
-			    cpIds.setProductIds(pid);
-			    cartIdsRepo.save(cpIds);
-			});
+		log.info(cart.toString());
+
+		List<Long> pids = extractCart.extractIdsFormProudcts(cart.getVendorProducts());
+
+		pids.stream().forEach(pid -> {
+			CustProductIds cpIds = new CustProductIds();
+			cpIds.setCustomerIds(cart.getCustomerId());
+			cpIds.setProductIds(pid);
+			cartIdsRepo.save(cpIds);
+		});
 		return countOfProductInCart(cart.getCustomerId());
 	}
+
 	
-	@GetMapping("/countCart")
-	public long countOfProductInCart(long customerIds) {
-		 return cartIdsRepo.countByCustomerIds(customerIds);
+	@GetMapping("/countCart/{cid}")
+	public long countOfProductInCarts(@PathVariable("cid") long customerIds) {
+		return countOfProductInCart(customerIds);
 	}
+	
+	private long countOfProductInCart( long customerIds) {
+		return cartIdsRepo.countDistinctProductIdsByCustomerIds(customerIds);
+	}
+	
+	
 }

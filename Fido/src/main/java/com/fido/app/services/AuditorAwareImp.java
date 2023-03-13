@@ -1,9 +1,6 @@
 package com.fido.app.services;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.context.SecurityContextHolder;
