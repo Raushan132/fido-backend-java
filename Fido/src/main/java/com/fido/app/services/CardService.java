@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fido.app.entity.CardDetail;
+import com.fido.app.exception.CardExistedException;
 import com.fido.app.exception.CardExpireException;
 import com.fido.app.exception.InvalidException;
 import com.fido.app.repository.CardRepo;
@@ -25,7 +26,7 @@ public class CardService {
 		
 		
 	
-		if(this.isCardExist(customerId, cardType)) throw new Exception(cardType+" Card is already exist");
+		if(this.isCardExist(customerId, cardType)) throw new CardExistedException(cardType+" Card is already exist");
 		
 		int month=LocalDate.now().getMonthValue();
 		
@@ -81,9 +82,6 @@ public class CardService {
 	
 	private boolean isCardExist(long id,String cardType){
 		
-		
-		
-		
 		var cards= getCardByCustomerIdAndCardType(id,cardType);
 		if(cards.isEmpty()) return false;
 		Predicate<CardDetail> isCardTypePersent= (card)->card.getCardType().equalsIgnoreCase(cardType);
@@ -114,7 +112,7 @@ public class CardService {
 		return random;
 	}
 	
-	private String getAmount(String cardType) throws Exception {
+	private String getAmount(String cardType) throws InvalidException {
 		String amt="0";
 		
 		switch (cardType) {
@@ -125,12 +123,12 @@ public class CardService {
 		case "DIAMOND": amt="25000";
 			break;
 		default:
-			throw new Exception("Invalid Card Selection");
+			throw new InvalidException("Invalid Card Selection");
 		}
 		return amt;
 	}
 	
-	private String getCardNo(String cardType) throws Exception {
+	private String getCardNo(String cardType) throws InvalidException {
 		String accountNo="";
 		int year= LocalDate.now().getYear();
 		StringBuilder random= new StringBuilder();
@@ -144,7 +142,7 @@ public class CardService {
 		case "DIAMOND": accountNo="5345";
 			break;
 		default:
-			throw new Exception("Invalid Card Selection");
+			throw new InvalidException("Invalid Card Selection");
 		}
 		accountNo+=year+random.toString();
 		return accountNo;

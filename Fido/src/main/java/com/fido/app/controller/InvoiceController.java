@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.Invoice;
+import com.fido.app.exception.InvalidException;
 import com.fido.app.exception.OutOfStockException;
 import com.fido.app.model.CartProducts;
 import com.fido.app.services.AuthDetail;
@@ -57,7 +58,7 @@ public class InvoiceController {
 	
 	
 	@GetMapping("/invoice/{id}")
-	public Invoice getInvoiceById(@PathVariable long id) {
+	public Invoice getInvoiceById(@PathVariable long id) throws InvalidException {
 		return invoiceGenerator.getInvoiceById(id);
 	}
 	

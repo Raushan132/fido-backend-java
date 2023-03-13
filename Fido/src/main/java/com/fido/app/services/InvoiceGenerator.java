@@ -19,6 +19,8 @@ import com.fido.app.entity.InvoiceProduct;
 import com.fido.app.entity.VendorDetails;
 import com.fido.app.entity.VendorProduct;
 import com.fido.app.exception.CardExpireException;
+import com.fido.app.exception.InvalidException;
+import com.fido.app.exception.NotSufficientBalanceException;
 import com.fido.app.exception.OutOfStockException;
 import com.fido.app.model.CartProducts;
 import com.fido.app.repository.CartIdsRepo;
@@ -45,12 +47,12 @@ public class InvoiceGenerator {
 	private VendorProductReop productReop;
 
 	public Invoice getInvoiceData(CustomerDetails custDetails, VendorDetails vendor, List<CartProducts> products,
-			CardDetail card) throws OutOfStockException,CardExpireException,Exception {
+			CardDetail card) throws OutOfStockException, CardExpireException, Exception {
 		if (cardService.isCardExpire(card))
 			throw new CardExpireException("Card is Expired");
 
 		subtractStock(products);
-		
+
 		var invoiceProducts = products.stream().map(product -> convertInvoiceProduct(product))
 				.collect(Collectors.toList());
 		log.info(invoiceProducts.toString());
@@ -66,10 +68,9 @@ public class InvoiceGenerator {
 		invoice = buyProduct(invoice, card);
 
 		cartRepo.deleteByCustomerIds(custDetails.getId());
-		
 
 		return invoice;
-		
+
 	}
 
 	private InvoiceProduct convertInvoiceProduct(CartProducts product) {
@@ -87,13 +88,9 @@ public class InvoiceGenerator {
 		BigDecimal dis = new BigDecimal(discount == null ? "0" : discount);
 		BigDecimal tax = new BigDecimal(invoiceProduct.getTax());
 
-//		System.out.println(price+" "+ qty+" "+dis+" "+tax);
 		BigDecimal amt = price.multiply(qty);
-//		System.out.println("Amount:"+amt);
 
 		amt = amt.subtract(amt.multiply(dis.divide(BigDecimal.valueOf(100.0))));
-
-//		System.out.println("discount amount:"+amt);
 
 		var totAmt = amt.add(amt.multiply(tax.divide(BigDecimal.valueOf(100.0))));
 		invoiceProduct.setTotalamt(String.valueOf(totAmt.setScale(2, RoundingMode.HALF_DOWN)));
@@ -141,7 +138,7 @@ public class InvoiceGenerator {
 		BigDecimal currBalance = new BigDecimal(card.getAmount()).setScale(2, RoundingMode.HALF_DOWN);
 		BigDecimal invoiceBalance = new BigDecimal(invoice.getGrandTotal());
 		if (currBalance.compareTo(invoiceBalance) == -1)
-			throw new Exception("Not Sufficient Balance");
+			throw new NotSufficientBalanceException("Not Sufficient Balance");
 
 		currBalance = currBalance.subtract(invoiceBalance);
 		log.info(currBalance.toString());
@@ -152,41 +149,45 @@ public class InvoiceGenerator {
 		return invoice;
 
 	}
-boolean error;
+
+	boolean error;
+
 	private void subtractStock(List<CartProducts> products) throws OutOfStockException {
 		List<Long> ids = products.stream().map(product -> product.getId()).collect(Collectors.toList());
 		List<VendorProduct> vProducts = productReop.findAllById(ids);
-		
-		
-		 vProducts= vProducts.stream().map(vProduct->{
-			products.stream().forEach(cProduct->{
-			
-				if(vProduct.getId()==cProduct.getId()) {
-					int qty=Integer.parseInt(cProduct.getQuantity());
-					int stock=Integer.parseInt(vProduct.getStock());
-					if(qty<=stock) {
-						vProduct.setStock(String.valueOf(stock-qty));
-						System.out.println("here213:"+stock+" "+qty);
-					}else error=true;
+
+		vProducts = vProducts.stream().map(vProduct -> {
+			products.stream().forEach(cProduct -> {
+
+				if (vProduct.getId() == cProduct.getId()) {
+					int qty = Integer.parseInt(cProduct.getQuantity());
+					int stock = Integer.parseInt(vProduct.getStock());
+					if (qty <= stock) {
+						vProduct.setStock(String.valueOf(stock - qty));
+
+					} else
+						error = true;
 				}
 			});
-			
-						
+
 			return vProduct;
 		}).collect(Collectors.toList());
-		 
-		 if(error) {
-			 error=false;
-			 throw new OutOfStockException("Out of Stock");
-		 }
-		
+
+		if (error) {
+			error = false;
+			throw new OutOfStockException("Out of Stock");
+		}
+
 		productReop.saveAll(vProducts);
-		
 
 	}
 
-	public Invoice getInvoiceById(long id) {
-		return invoiceRepo.findById(id).orElseThrow();
+	public Invoice getInvoiceById(long id) throws InvalidException {
+		try {
+			return invoiceRepo.findById(id).orElseThrow();
+		} catch (Exception e) {
+			throw new InvalidException("Invoice not Found");
+		}
 	}
 
 	public List<Invoice> getInvoiceByCustomerEmail(String email) {

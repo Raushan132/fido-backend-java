@@ -27,11 +27,7 @@ public class CustomUserDetailService implements UserDetailsService {
 			throw new NoSuchElementException("No User Found in Authentication at class CustomUserDetailService ");
 		}
 
-//		if(username.equals("Raka")) {
-//			return new User("Raka","Password",new ArrayList<>());
-//		}
-//		
-//		else throw new UsernameNotFoundException(username);
+
 	}
 
 }

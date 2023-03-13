@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.fido.app.exception.CardExistedException;
 import com.fido.app.exception.CardExpireException;
 import com.fido.app.exception.InvalidException;
+import com.fido.app.exception.NotSufficientBalanceException;
 import com.fido.app.exception.OutOfStockException;
 import com.fido.app.model.Response;
 
@@ -24,7 +26,7 @@ public class ExceptionController {
 	
 	
 	@ExceptionHandler({InvalidException.class})
-	public ResponseEntity<Response> InvalidExceptionHandler(InvalidException exception){
+	public ResponseEntity<Response> InvalidExceptionHandler(Exception exception){
 		 Response response= new Response("401",exception.getMessage());
 		 log.info("User not found"+exception.getMessage());
 		 return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
@@ -39,20 +41,22 @@ public class ExceptionController {
 	}
 	
 	
-	@ExceptionHandler({CardExpireException.class})
-	public ResponseEntity<Response> cardExpireExceptionHandler(CardExpireException exception){
+	@ExceptionHandler({CardExpireException.class,CardExistedException.class})
+	public ResponseEntity<Response> cardExpireExceptionHandler(Exception exception){
 		 Response response= new Response("406",exception.getMessage());
 		 log.info(exception.getMessage());
 		 return new ResponseEntity<>(response,HttpStatus.NOT_ACCEPTABLE);
 	}
 	
-	@ExceptionHandler({OutOfStockException.class})
-	public ResponseEntity<Response> OutOfStockExceptionHandler(CardExpireException exception){
-		 Response response= new Response("132",exception.getMessage());
+	@ExceptionHandler({OutOfStockException.class,NotSufficientBalanceException.class})
+	public ResponseEntity<Response> OutOfStockExceptionHandler(Exception exception){
+		 Response response= new Response("422",exception.getMessage());
 		 log.info(exception.getMessage());
-		 return new ResponseEntity<>(response,HttpStatus.valueOf(132));
+		 return new ResponseEntity<>(response,HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
+
+	
 	
 	
 	@ExceptionHandler({Exception.class})

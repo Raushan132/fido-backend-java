@@ -63,7 +63,7 @@ public class CardController {
 	}
 	
 	@PostMapping("/card")
-	public CardDetail addCards(@RequestBody CardDetail card) throws InvalidException,Exception {
+	public CardDetail addCards(@RequestBody CardDetail card) throws Exception {
 		
 		if(!authDetail.isAdmin())
 			throw new InvalidException("Invild User Only For Admin");
