@@ -17,14 +17,14 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -44,7 +44,11 @@ public class User_Vendor_Auth extends BaseEntity implements UserDetails {
 	@GeneratedValue(strategy =GenerationType.AUTO, generator = "native")
 	@GenericGenerator(name="native", strategy = "native")
 	private long id;
+	
+	@NotBlank(message = "Invalid Data")
 	private String fullName;
+	
+	@Email(message="Invalid Email")
 	private String email;
 
 	private String password;

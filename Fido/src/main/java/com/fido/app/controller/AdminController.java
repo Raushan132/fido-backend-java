@@ -3,6 +3,8 @@ package com.fido.app.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -84,7 +86,7 @@ public class AdminController {
 		}
 	 
 	 @PostMapping("/customer")
-	 public String addCustomer(@RequestParam String customer,
+	 public String addCustomer(@Valid @RequestParam String customer,
 		 		@RequestParam("aadhar") MultipartFile file1,
 		 		@RequestParam("pan") MultipartFile file2) throws JsonMappingException, JsonProcessingException {
 		 
@@ -139,7 +141,7 @@ public class AdminController {
 	
 	 
 	 @PostMapping("/vendor")
-	 public String addVendor(@RequestParam("vendor") String vendor,
+	 public String addVendor(@Valid @RequestParam("vendor") String vendor,
 			 @RequestParam("aadhar") MultipartFile file1,
 			 @RequestParam("pan") MultipartFile file2,
 			 @RequestParam(name="doc",required = false) MultipartFile file3) throws JsonMappingException, JsonProcessingException {

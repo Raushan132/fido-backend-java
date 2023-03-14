@@ -1,9 +1,12 @@
 package com.fido.app.controller;
 
 import java.util.List;
+
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.VendorProduct;
+import com.fido.app.model.AdminProduct;
 import com.fido.app.model.Response;
 import com.fido.app.repository.VendorProductReop;
+import com.fido.app.services.AdminProductService;
 import com.fido.app.services.AuthDetail;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
+@Validated
 @RestController
 public class ProductController {
 
@@ -39,15 +45,18 @@ public class ProductController {
 
 	@Autowired
 	private AuthDetail authDetail;
+	
+	@Autowired
+	private AdminProductService productService;
 
 	@GetMapping(value = "/vendor")
-	public String getVendor() {
-
-		return "vendor product is available";
+	public List<AdminProduct> getVendor( ) {
+        var product=productService.getProductWithName();
+		return product;
 	}
 
 	@PutMapping(value = "/setProduct")
-	public ResponseEntity<Response> setProduct(@RequestBody VendorProduct product) throws Exception {
+	public ResponseEntity<Response> setProduct(@Valid @RequestBody VendorProduct product) throws Exception {
 		log.info(product.toString());
 		var temp = authDetail.getVendorDetail();
 		product.setProuductOwnerId(temp.getId());
@@ -58,9 +67,9 @@ public class ProductController {
 	}
 
 	@GetMapping(value = "/getProduct")
-	public List<VendorProduct> getProduct() {
+	public List<AdminProduct> getProduct() {
 
-		return productReop.findAll();
+		return productService.getProductWithName();
 	}
 
 	@GetMapping("/product/{id}")

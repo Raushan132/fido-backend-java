@@ -2,6 +2,8 @@ package com.fido.app.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +61,7 @@ public class UserController {
 	}
 
 	@PutMapping(value = "/userProfile")
-	public ResponseEntity<?> upadateUserProfile(@RequestBody CustomerDetails customerDetail) {
+	public ResponseEntity<?> upadateUserProfile(@Valid @RequestBody CustomerDetails customerDetail) {
 
 		System.out.println(customerDetail);
 		System.out.println(customerDetail.getAddress());
@@ -80,7 +82,7 @@ public class UserController {
 	}
 
 	@PutMapping(value = "/vendorProfile")
-	public ResponseEntity<?> upadateVendorProfile(@RequestBody VendorDetails vendorDetail) {
+	public ResponseEntity<?> upadateVendorProfile(@Valid @RequestBody VendorDetails vendorDetail) {
 
 		System.out.println("Vendor is updating");
 		var temp = authDetail.getVendorDetailById(vendorDetail.getId());

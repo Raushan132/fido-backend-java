@@ -19,7 +19,7 @@ public class CustProductIds {
 	private long cpid;
 	
 	private long customerIds;
-
+    
 	private long productIds;
 	
 	

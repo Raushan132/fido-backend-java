@@ -8,4 +8,5 @@ import com.fido.app.entity.VendorDetails;
 
 public interface VendorRepo extends JpaRepository<VendorDetails, Long> {
 	Optional<VendorDetails> findByEmail(String email);
+	
 }

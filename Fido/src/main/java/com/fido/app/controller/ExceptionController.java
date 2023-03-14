@@ -6,6 +6,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -40,6 +41,14 @@ public class ExceptionController {
 		 return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
 	}
 	
+
+	
+	@ExceptionHandler({MethodArgumentNotValidException.class})
+	public ResponseEntity<Response> methodArgumentNotValidExceptionHandler(Exception exception){
+		 Response response= new Response("400","Invalid Data");
+		 log.info(exception.getMessage());
+		 return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+	}
 	
 	@ExceptionHandler({CardExpireException.class,CardExistedException.class})
 	public ResponseEntity<Response> cardExpireExceptionHandler(Exception exception){
@@ -62,7 +71,6 @@ public class ExceptionController {
 	@ExceptionHandler({Exception.class})
 	public ResponseEntity<Response> exceptionHandler(Exception exception){
 		 Response response= new Response("500",exception.getMessage());
-		 
 		 log.info(exception.getMessage());
 		 return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
 	}

@@ -1,7 +1,9 @@
-package com.fido.app.controller;
+ package com.fido.app.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,11 +65,11 @@ public class CardController {
 	}
 	
 	@PostMapping("/card")
-	public CardDetail addCards(@RequestBody CardDetail card) throws Exception {
+	public CardDetail addCards(@Valid @RequestBody  CardDetail card) throws Exception {
 		
 		if(!authDetail.isAdmin())
 			throw new InvalidException("Invild User Only For Admin");
-		
+		log.info(card.toString());
 		card=cardService.createCard(card.getCardType(), card.getCustomerId());
 
 		log.info(card.toString());		
