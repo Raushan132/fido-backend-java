@@ -90,7 +90,7 @@ public class AdminController {
 		 		@RequestParam("aadhar") MultipartFile file1,
 		 		@RequestParam("pan") MultipartFile file2) throws JsonMappingException, JsonProcessingException {
 		 
-		 System.out.println(customer);
+		 
 		
 		 // change string JSON to customer details...
 		 ObjectMapper objectMapper= new ObjectMapper();

@@ -1,9 +1,12 @@
 package com.fido.app.services;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,10 +41,30 @@ public class DashboardService {
 		 long noOfCustomers=customerRepo.count();
 		 long noOfVendors= vendorRepo.count();
 		 long noOfProducts=productReop.count();
+		 LocalDate date= LocalDate.now();
+		 
+		 
+		 Map<Integer,String> monthSell=new HashMap<>();
+		 String todaySell="";
+		 
+		 
 		 
 		 List<Invoice> invoices= invoiceRepo.findAll();
-		 String totalSell= invoices.stream().map(invoice->new BigDecimal(invoice.getGrandTotal())).reduce(BigDecimal.ZERO,BigDecimal::add).toString();
+		 List<Invoice> monthInvoices=    invoiceRepo.findAllByInvoiceDateBetween(date.minusMonths(1).plusDays(1).toString());
 		 
+		 
+		 Function<Invoice,BigDecimal> fun=invoice->new BigDecimal(invoice.getGrandTotal());
+		 
+		 String totalSell= invoices.stream().map(fun).reduce(BigDecimal.ZERO,BigDecimal::add).toString();
+		 todaySell= invoiceRepo.findSumByInvoiceDate(date.toString());
+         
+		 monthInvoices.forEach(invoice->{
+			 LocalDate invoiceDate= LocalDateTime.parse(invoice.getInvoiceDate()).toLocalDate();
+			 String total= monthSell.putIfAbsent(invoiceDate.getDayOfMonth(),invoice.getGrandTotal());
+			 if(total!=null) monthSell.put(invoiceDate.getDayOfMonth(), new BigDecimal(total).add(new BigDecimal(invoice.getGrandTotal())).toString());
+			 
+	 });
+//		 
 		 List<CardDetail>cards=cardRepo.findAll();
 		 long activeCard=cards.stream().filter(card->card.isActivate()).count();
 		 long deactivatedCard=cards.stream().filter(card->!card.isActivate()).count();
@@ -53,8 +76,11 @@ public class DashboardService {
 		 map.put("totalSell",Double.valueOf(totalSell));
 		 map.put("activeCard",activeCard);
 		 map.put("deactivatedCard",deactivatedCard);
+		 map.put("todaySell",todaySell);
+		 map.put("monthSell",monthSell);
 		 
 		 
+		
 	        
 		 return map;
 		 

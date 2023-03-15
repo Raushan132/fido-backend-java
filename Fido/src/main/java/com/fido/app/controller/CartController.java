@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.CustProductIds;
 import com.fido.app.entity.VendorProduct;
+import com.fido.app.exception.InvalidRequest;
 import com.fido.app.model.Cart;
 import com.fido.app.model.Response;
 import com.fido.app.repository.CartIdsRepo;
@@ -81,9 +82,9 @@ public class CartController {
 	}
 
 	@PostMapping("/cart")
-	public long acceptProduct(@RequestBody Cart cart) {
+	public ResponseEntity<Response> acceptProduct(@RequestBody Cart cart) throws InvalidRequest {
 		log.info(cart.toString());
-
+        if(cart.getVendorProducts().isEmpty()) throw new InvalidRequest("Please Select Product");
 		List<Long> pids = extractCart.extractIdsFormProudcts(cart.getVendorProducts());
 
 		pids.stream().forEach(pid -> {
@@ -92,7 +93,7 @@ public class CartController {
 			cpIds.setProductIds(pid);
 			cartIdsRepo.save(cpIds);
 		});
-		return countOfProductInCart(cart.getCustomerId());
+		return ResponseEntity.status(HttpStatus.OK).body(new Response("200","Product is added successfully"));
 	}
 
 	

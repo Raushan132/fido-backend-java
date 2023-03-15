@@ -2,6 +2,7 @@ package com.fido.app.services;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
 import javax.transaction.Transactional;
@@ -10,10 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fido.app.entity.CardDetail;
+import com.fido.app.entity.DebitHistory;
 import com.fido.app.exception.CardExistedException;
 import com.fido.app.exception.CardExpireException;
+import com.fido.app.exception.CardNotFoundException;
 import com.fido.app.exception.InvalidException;
 import com.fido.app.repository.CardRepo;
+import com.fido.app.repository.DebitHistoryRepo;
 
 @Transactional
 @Service
@@ -21,6 +25,9 @@ public class CardService {
 	
 	@Autowired
 	private CardRepo cardRepo;
+	
+	@Autowired
+	private DebitHistoryRepo dhistoryRepo;
 
 	public CardDetail createCard(String cardType, long customerId) throws Exception {
 		
@@ -146,5 +153,23 @@ public class CardService {
 		}
 		accountNo+=year+random.toString();
 		return accountNo;
+	}
+	
+	
+	public List<DebitHistory> getTransactionalHistory(long cid) {
+		 return dhistoryRepo.findAllByCustomerId(cid);
+	}
+	
+	public void getRecharged(long cardId) throws Exception {
+		try {
+		CardDetail card=  cardRepo.findById(cardId).orElseThrow();
+		if(!card.isActivate()) throw new CardExpireException("Card is Deactive");
+		card.setAmount(this.getAmount(card.getCardType()));
+		cardRepo.save(card);
+		}catch(NoSuchElementException e) {
+			throw new CardNotFoundException("Card not exit");
+		}catch(Exception e) {
+			throw e;
+		}
 	}
 }

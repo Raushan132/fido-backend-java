@@ -26,7 +26,7 @@ public class UploadFile {
 		 try {
 			 @SuppressWarnings("rawtypes")
 			Map store=  cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-			 System.out.println(store.get("secure_url"));
+			
 			return (String)store.get("secure_url");
 		    
 			

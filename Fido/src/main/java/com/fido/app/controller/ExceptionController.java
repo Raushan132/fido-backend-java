@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.fido.app.exception.CardExistedException;
 import com.fido.app.exception.CardExpireException;
 import com.fido.app.exception.InvalidException;
+import com.fido.app.exception.InvalidRequest;
 import com.fido.app.exception.NotSufficientBalanceException;
 import com.fido.app.exception.OutOfStockException;
 import com.fido.app.model.Response;
@@ -50,7 +51,7 @@ public class ExceptionController {
 		 return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 	}
 	
-	@ExceptionHandler({CardExpireException.class,CardExistedException.class})
+	@ExceptionHandler({CardExpireException.class,CardExistedException.class,InvalidRequest.class})
 	public ResponseEntity<Response> cardExpireExceptionHandler(Exception exception){
 		 Response response= new Response("406",exception.getMessage());
 		 log.info(exception.getMessage());

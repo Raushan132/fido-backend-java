@@ -16,29 +16,27 @@ public class AdminProductService {
 
 	@Autowired
 	private VendorProductReop productReop;
-	
+
 	@Autowired
 	private VendorRepo vendorRepo;
-	
+
 	public List<AdminProduct> getProductWithName() {
-		  
-		  List<VendorDetails> vendors = vendorRepo.findAll(); 
-		  List<AdminProduct> adminProduct=new ArrayList<>();
-		  vendors.stream().forEach(vendor->{
-			 
-			 List<VendorProduct> products= productReop.findAllByProuductOwnerId(vendor.getId());
-			 products.stream().forEach(product->{
-				 AdminProduct aProduct=new AdminProduct();
-				 aProduct.setProduct(product);
-				 aProduct.setVName(vendor.getFullName());
-				 adminProduct.add(aProduct);
-			 });
-			 
-			 
-			 
-		  });
-		  System.out.println(adminProduct);
-		  return adminProduct;
-		  
+
+		List<VendorDetails> vendors = vendorRepo.findAll();
+		List<AdminProduct> adminProduct = new ArrayList<>();
+		vendors.stream().forEach(vendor -> {
+
+			List<VendorProduct> products = productReop.findAllByProuductOwnerId(vendor.getId());
+			products.stream().forEach(product -> {
+				AdminProduct aProduct = new AdminProduct();
+				aProduct.setProduct(product);
+				aProduct.setVName(vendor.getFullName());
+				adminProduct.add(aProduct);
+			});
+
+		});
+
+		return adminProduct;
+
 	}
 }

@@ -1,6 +1,9 @@
 package com.fido.app.controller;
 
 import java.util.ArrayList;
+
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -45,7 +48,7 @@ public class TokenController {
 	
 	
 	@PostMapping(value="/token")
-	public ResponseEntity<?> getToken(@RequestBody JwtRequest jwtRequest) throws InvalidException  {
+	public ResponseEntity<?> getToken(@Valid @RequestBody JwtRequest jwtRequest) throws InvalidException  {
 		System.out.println(jwtRequest);
 		try {
 			this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(jwtRequest.getEmail(), jwtRequest.getPassword()));

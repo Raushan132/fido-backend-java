@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.fido.app.entity.CardDetail;
 import com.fido.app.entity.CustomerDetails;
+import com.fido.app.entity.DebitHistory;
 import com.fido.app.entity.Invoice;
 import com.fido.app.entity.InvoiceProduct;
 import com.fido.app.entity.VendorDetails;
@@ -24,6 +25,7 @@ import com.fido.app.exception.NotSufficientBalanceException;
 import com.fido.app.exception.OutOfStockException;
 import com.fido.app.model.CartProducts;
 import com.fido.app.repository.CartIdsRepo;
+import com.fido.app.repository.DebitHistoryRepo;
 import com.fido.app.repository.InvoiceRepo;
 import com.fido.app.repository.VendorProductReop;
 
@@ -45,6 +47,9 @@ public class InvoiceGenerator {
 
 	@Autowired
 	private VendorProductReop productReop;
+	
+	@Autowired
+	private DebitHistoryRepo debitRepo;
 
 	public Invoice getInvoiceData(CustomerDetails custDetails, VendorDetails vendor, List<CartProducts> products,
 			CardDetail card) throws OutOfStockException, CardExpireException, Exception {
@@ -66,8 +71,12 @@ public class InvoiceGenerator {
 		log.info(invoice.toString());
 
 		invoice = buyProduct(invoice, card);
+		
+		debitRepo.save(setDebitHistory(card, invoice.getGrandTotal()));
 
 		cartRepo.deleteByCustomerIds(custDetails.getId());
+		
+		
 
 		return invoice;
 
@@ -192,6 +201,15 @@ public class InvoiceGenerator {
 
 	public List<Invoice> getInvoiceByCustomerEmail(String email) {
 		return invoiceRepo.findAllBycEmail(email);
+	}
+	
+	private DebitHistory setDebitHistory(CardDetail card,String amt) {
+		DebitHistory debit= new DebitHistory();
+		debit.setCardNo(card.getCardNo());
+		debit.setCustomerId(card.getCustomerId());
+		debit.setCardType(card.getCardType());
+		debit.setAmount(amt);
+		return debit;
 	}
 
 }

@@ -25,6 +25,7 @@ public class AuthDetail {
 
 	public boolean isAdmin() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
 		return auth.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals("ADMIN"));
 	}
 
@@ -35,6 +36,7 @@ public class AuthDetail {
 
 	public boolean isUser() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
 		return auth.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals("USER"));
 	}
 

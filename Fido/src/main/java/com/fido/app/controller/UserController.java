@@ -23,6 +23,9 @@ import com.fido.app.services.AuthDetail;
 import com.fido.app.services.Extract_Customer_Vendor;
 import com.fido.app.services.InvoiceGenerator;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 public class UserController {
 
@@ -63,9 +66,7 @@ public class UserController {
 	@PutMapping(value = "/userProfile")
 	public ResponseEntity<?> upadateUserProfile(@Valid @RequestBody CustomerDetails customerDetail) {
 
-		System.out.println(customerDetail);
-		System.out.println(customerDetail.getAddress());
-		System.out.println(customerDetail.getEmail());
+		
 		var temp = authDetail.getCustomerDetailsById(customerDetail.getId());
 		customerDetail.setPassword(temp.getPassword());
 		customerDetail.setRoles(temp.getRoles());
@@ -84,7 +85,7 @@ public class UserController {
 	@PutMapping(value = "/vendorProfile")
 	public ResponseEntity<?> upadateVendorProfile(@Valid @RequestBody VendorDetails vendorDetail) {
 
-		System.out.println("Vendor is updating");
+		log.info("Vendor is updating");
 		var temp = authDetail.getVendorDetailById(vendorDetail.getId());
 		vendorDetail.setPassword(temp.getPassword());
 		vendorDetail.setRoles(temp.getRoles());
