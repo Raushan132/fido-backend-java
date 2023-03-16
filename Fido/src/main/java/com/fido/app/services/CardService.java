@@ -10,6 +10,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fido.app.constant.CardType;
 import com.fido.app.entity.CardDetail;
 import com.fido.app.entity.DebitHistory;
 import com.fido.app.exception.CardExistedException;
@@ -122,19 +123,19 @@ public class CardService {
 	}
 	
 	private String getAmount(String cardType) throws InvalidException {
-		String amt="0";
+		
 		
 		switch (cardType) {
-		case "GOLD": amt="10000";
-			break;
-		case "PLATINUM": amt="15000";
-			break;
-		case "DIAMOND": amt="25000";
-			break;
+		case "GOLD":return CardType.GOLD.getCardAmount();
+			
+		case "PLATINUM":return CardType.PLATINUM.getCardAmount();
+			
+		case "DIAMOND": return CardType.DIAMOND.getCardAmount();
+			
 		default:
 			throw new InvalidException("Invalid Card Selection");
 		}
-		return amt;
+		
 	}
 	
 	private String getCardNo(String cardType) throws InvalidException {
@@ -166,6 +167,7 @@ public class CardService {
 		try {
 		CardDetail card=  cardRepo.findById(cardId).orElseThrow();
 		if(!card.isActivate()) throw new CardExpireException("Card is Deactive");
+		if(card.getAmount().equals(this.getAmount(card.getCardType()))) throw new Exception("Already renew");
 		card.setAmount(this.getAmount(card.getCardType()));
 		card= cardRepo.save(card);
 		dhistoryRepo.save(this.setDebitHistory(card, card.getAmount(),"CREDIT"));

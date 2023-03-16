@@ -37,8 +37,9 @@ public class InvoiceController {
 	
 	
 	@PostMapping("/buyProduct/{cid}/{cardId}")
-	public long getProductFromCart(@PathVariable("cid") long customerId,@RequestBody List<CartProducts> products,@PathVariable long cardId) throws OutOfStockException,Exception {
+	public long getProductFromCart(@PathVariable("cid") Long customerId,@RequestBody List<CartProducts> products,@PathVariable long cardId) throws OutOfStockException,Exception {
 		log.info(products.toString());
+		if(customerId==null) throw new Exception("No card is selected");
 		if(products.isEmpty()) throw new Exception("No product is selected");
 		var vendor =authDetail.getVendorDetail();
 		var customer= authDetail.getCustomerDetailsById(customerId);

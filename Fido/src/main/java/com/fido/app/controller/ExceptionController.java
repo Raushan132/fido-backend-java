@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -44,7 +45,7 @@ public class ExceptionController {
 	
 
 	
-	@ExceptionHandler({MethodArgumentNotValidException.class})
+	@ExceptionHandler({MethodArgumentNotValidException.class,HttpMessageNotReadableException.class})
 	public ResponseEntity<Response> methodArgumentNotValidExceptionHandler(Exception exception){
 		 Response response= new Response("400","Invalid Data");
 		 log.info(exception.getMessage());
