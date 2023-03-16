@@ -73,10 +73,10 @@ public class DashboardService {
 		 map.put("customers",noOfCustomers);
 		 map.put("vendors",noOfVendors);
 		 map.put("product",noOfProducts);
-		 map.put("totalSell",Double.valueOf(totalSell));
+		 map.put("totalSell",String.format("%.2f",Double.parseDouble(totalSell)));
 		 map.put("activeCard",activeCard);
 		 map.put("deactivatedCard",deactivatedCard);
-		 map.put("todaySell",todaySell);
+		 map.put("todaySell",String.format("%.2f",Double.parseDouble(todaySell)));
 		 map.put("monthSell",monthSell);
 		 
 		 
