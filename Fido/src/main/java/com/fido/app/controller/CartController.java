@@ -26,6 +26,7 @@ import com.fido.app.model.Cart;
 import com.fido.app.model.Response;
 import com.fido.app.repository.CartIdsRepo;
 import com.fido.app.repository.VendorProductReop;
+import com.fido.app.services.AuthDetail;
 import com.fido.app.services.ExtractCart;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,13 +45,19 @@ public class CartController {
 
 	@Autowired
 	private CartIdsRepo cartIdsRepo;
+	
+	@Autowired
+	private AuthDetail authDetail;
 
 	@GetMapping("/cart/{id}")
-	public Set<VendorProduct> getCartByCustomerId(@PathVariable("id") long customerId) throws NoSuchElementException {
+	public Set<VendorProduct> getCartByCustomerId(@PathVariable("id") long customerId) throws Exception {
 
 		try {
-			List<CustProductIds> productIds = cartIdsRepo.getAllProductIdsByCustomerIds(customerId);
-
+		    var vendor=	authDetail.getVendorDetail();
+			
+		    System.out.println(vendor.getId()+" "+customerId);
+			List<CustProductIds> productIds = cartIdsRepo.findAllProductIdsByCustomerIdsAndVendorIds(customerId,vendor.getId());
+			log.info(productIds.toString());
 			Function<CustProductIds, VendorProduct> fun = (cpIds) -> {
 
 				return vendorProductReop.findById(cpIds.getProductIds()).orElseThrow();
@@ -82,15 +89,16 @@ public class CartController {
 	}
 
 	@PostMapping("/cart")
-	public ResponseEntity<Response> acceptProduct(@RequestBody Cart cart) throws InvalidRequest {
+	public ResponseEntity<Response> acceptProduct(@RequestBody Cart cart) throws Exception {
 		log.info(cart.toString());
         if(cart.getVendorProducts().isEmpty()) throw new InvalidRequest("Please Select Product");
 		List<Long> pids = extractCart.extractIdsFormProudcts(cart.getVendorProducts());
-
+        var vendor = authDetail.getVendorDetail();
 		pids.stream().forEach(pid -> {
 			CustProductIds cpIds = new CustProductIds();
 			cpIds.setCustomerIds(cart.getCustomerId());
 			cpIds.setProductIds(pid);
+			cpIds.setVendorIds(vendor.getId());
 			cartIdsRepo.save(cpIds);
 		});
 		return ResponseEntity.status(HttpStatus.OK).body(new Response("200","Product is added successfully"));

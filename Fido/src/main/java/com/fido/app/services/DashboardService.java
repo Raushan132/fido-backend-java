@@ -78,10 +78,7 @@ public class DashboardService {
 		 map.put("deactivatedCard",deactivatedCard);
 		 map.put("todaySell",String.format("%.2f",Double.parseDouble(todaySell)));
 		 map.put("monthSell",monthSell);
-		 
-		 
-		
-	        
+		   
 		 return map;
 		 
 	}

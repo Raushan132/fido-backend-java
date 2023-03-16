@@ -19,8 +19,9 @@ public class CustProductIds {
 	private long cpid;
 	
 	private long customerIds;
-    
+    private long vendorIds;
 	private long productIds;
+	
 	
 	
 }

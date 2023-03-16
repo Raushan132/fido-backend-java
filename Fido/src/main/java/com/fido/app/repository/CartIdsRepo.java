@@ -9,7 +9,7 @@ import com.fido.app.entity.CustProductIds;
 public interface CartIdsRepo extends JpaRepository<CustProductIds, Long> {
 	Optional<CustProductIds>  findByCustomerIds(long id);
 	
-	List<CustProductIds> getAllProductIdsByCustomerIds(long id);
+	List<CustProductIds> findAllProductIdsByCustomerIdsAndVendorIds(long id,long vendorIds);
 	
 	long countByCustomerIds(long id);
 	
