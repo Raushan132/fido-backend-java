@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,14 +16,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.fido.app.entity.CardDetail;
 import com.fido.app.entity.CustomerDetails;
 import com.fido.app.entity.Role;
 import com.fido.app.entity.VendorDetails;
 import com.fido.app.exception.InvalidException;
+import com.fido.app.model.Response;
 import com.fido.app.repository.CustomerRepo;
 import com.fido.app.repository.VendorRepo;
 import com.fido.app.services.AuthDetail;
@@ -86,15 +88,18 @@ public class AdminController {
 		}
 	 
 	 @PostMapping("/customer")
-	 public String addCustomer(@Valid @RequestParam String customer,
+	 public ResponseEntity<Response> addCustomer(@Valid @RequestParam String customer,
 		 		@RequestParam("aadhar") MultipartFile file1,
-		 		@RequestParam("pan") MultipartFile file2) throws JsonMappingException, JsonProcessingException {
+		 		@RequestParam("pan") MultipartFile file2) throws Exception {
 		 
 		 
 		
 		 // change string JSON to customer details...
 		 ObjectMapper objectMapper= new ObjectMapper();
 		 CustomerDetails custDetails= objectMapper.readValue(customer,CustomerDetails.class);
+		 
+		  if( customerRepo.findByEmail(custDetails.getEmail()).isPresent()) throw new Exception("Email is already exist..");
+		 
 		 
 		 //send files to the CLoudinary api...
 		 String url=uploadFile.getUploadFile(file1);
@@ -108,7 +113,7 @@ public class AdminController {
 		 custDetails.addRoll(role);
 		 cusRepo.save(custDetails);
 		 
-		  return "customer is added";
+		  return ResponseEntity.status(HttpStatus.CREATED).body(new Response("201","Customer is added"));
 	 }
 		
 	
@@ -141,15 +146,17 @@ public class AdminController {
 	
 	 
 	 @PostMapping("/vendor")
-	 public String addVendor(@Valid @RequestParam("vendor") String vendor,
+	 public ResponseEntity<Response> addVendor(@Valid @RequestParam("vendor") String vendor,
 			 @RequestParam("aadhar") MultipartFile file1,
 			 @RequestParam("pan") MultipartFile file2,
-			 @RequestParam(name="doc",required = false) MultipartFile file3) throws JsonMappingException, JsonProcessingException {
+			 @RequestParam(name="doc",required = false) MultipartFile file3) throws Exception {
 		 
 		 
 		 
 		 ObjectMapper objectMapper= new ObjectMapper();
 		 VendorDetails vendorDetails= objectMapper.readValue(vendor,VendorDetails.class);
+		 
+		 if(vendorRepo.findByEmail(vendorDetails.getEmail()).isPresent()) throw new Exception("Email is already exist..");
 		 
 //		 send files to the CLoudinary api...
 		   String url= uploadFile.getUploadFile(file1);
@@ -167,8 +174,8 @@ public class AdminController {
 		 Role role=new Role();
 		 role.setRole("VENDOR");
 		 vendorDetails.addRoll(role);
-		 vendorRepo.save(vendorDetails);
-		 return "Vendor is added";
+		   vendorRepo.save(vendorDetails);
+		 return ResponseEntity.status(HttpStatus.CREATED).body(new Response("201","Vendor is added"));
 	 }
 	 
 

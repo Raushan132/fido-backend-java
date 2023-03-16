@@ -23,4 +23,5 @@ public class DebitHistory extends BaseEntity {
 	private long customerId;
 	private String cardType;
 	private String amount;
+	private String status;
 }

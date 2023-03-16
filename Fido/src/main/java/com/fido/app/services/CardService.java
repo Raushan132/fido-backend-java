@@ -26,6 +26,8 @@ public class CardService {
 	@Autowired
 	private CardRepo cardRepo;
 	
+	
+	
 	@Autowired
 	private DebitHistoryRepo dhistoryRepo;
 
@@ -165,11 +167,22 @@ public class CardService {
 		CardDetail card=  cardRepo.findById(cardId).orElseThrow();
 		if(!card.isActivate()) throw new CardExpireException("Card is Deactive");
 		card.setAmount(this.getAmount(card.getCardType()));
-		cardRepo.save(card);
+		card= cardRepo.save(card);
+		dhistoryRepo.save(this.setDebitHistory(card, card.getAmount(),"CREDIT"));
 		}catch(NoSuchElementException e) {
 			throw new CardNotFoundException("Card not exit");
 		}catch(Exception e) {
 			throw e;
 		}
+	}
+	
+	public  DebitHistory setDebitHistory(CardDetail card,String amt,String msg) {
+		DebitHistory debit= new DebitHistory();
+		debit.setCardNo(card.getCardNo());
+		debit.setCustomerId(card.getCustomerId());
+		debit.setCardType(card.getCardType());
+		debit.setAmount(amt);
+		debit.setStatus(msg);
+		return debit;
 	}
 }
