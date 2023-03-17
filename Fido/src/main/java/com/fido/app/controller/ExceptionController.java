@@ -18,6 +18,7 @@ import com.fido.app.exception.InvalidException;
 import com.fido.app.exception.InvalidRequest;
 import com.fido.app.exception.NotSufficientBalanceException;
 import com.fido.app.exception.OutOfStockException;
+import com.fido.app.exception.UserExistException;
 import com.fido.app.model.Response;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ public class ExceptionController {
 	
 	@ExceptionHandler({InvalidException.class})
 	public ResponseEntity<Response> InvalidExceptionHandler(Exception exception){
-		 Response response= new Response("401",exception.getMessage());
+		 Response response= new Response("401","UNAUTHORIZED USER");
 		 log.info("User not found"+exception.getMessage());
 		 return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
 	}
@@ -52,7 +53,7 @@ public class ExceptionController {
 		 return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 	}
 	
-	@ExceptionHandler({CardExpireException.class,CardExistedException.class,InvalidRequest.class})
+	@ExceptionHandler({CardExpireException.class,CardExistedException.class,InvalidRequest.class,UserExistException.class})
 	public ResponseEntity<Response> cardExpireExceptionHandler(Exception exception){
 		 Response response= new Response("406",exception.getMessage());
 		 log.info(exception.getMessage());
@@ -72,7 +73,7 @@ public class ExceptionController {
 	
 	@ExceptionHandler({Exception.class})
 	public ResponseEntity<Response> exceptionHandler(Exception exception){
-		 Response response= new Response("500",exception.getMessage());
+		 Response response= new Response("500","INTERNAL_SERVER_ERROR");
 		 log.info(exception.getMessage());
 		 return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
 	}

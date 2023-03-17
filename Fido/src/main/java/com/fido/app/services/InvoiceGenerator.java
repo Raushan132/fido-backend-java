@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.fido.app.entity.CardDetail;
 import com.fido.app.entity.CustomerDetails;
+import com.fido.app.entity.DebitHistory;
 import com.fido.app.entity.Invoice;
 import com.fido.app.entity.InvoiceProduct;
 import com.fido.app.entity.VendorDetails;
@@ -71,9 +72,9 @@ public class InvoiceGenerator {
 
 		invoice = buyProduct(invoice, card);
 		
-		debitRepo.save(cardService.setDebitHistory(card, invoice.getGrandTotal(),"DEBIT"));
+		 debitRepo.save(this.setDebitHistory(card, invoice.getGrandTotal(),"DEBIT"));
 
-		cartRepo.deleteByCustomerIds(custDetails.getId());
+		cartRepo.deleteByCustomerIdsAndVendorIds(custDetails.getId(),vendor.getId());
 		
 		
 
@@ -200,6 +201,16 @@ public class InvoiceGenerator {
 
 	public List<Invoice> getInvoiceByCustomerEmail(String email) {
 		return invoiceRepo.findAllBycEmail(email);
+	}
+	
+	private  DebitHistory setDebitHistory(CardDetail card,String amt,String msg) {
+		DebitHistory debit= new DebitHistory();
+		debit.setCardNo(card.getCardNo());
+		debit.setCustomerId(card.getCustomerId());
+		debit.setCardType(card.getCardType());
+		debit.setAmount(amt);
+		debit.setStatus(msg);
+		return debit;
 	}
 	
 	

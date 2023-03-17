@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.fido.app.entity.CustomerDetails;
 import com.fido.app.entity.VendorDetails;
+import com.fido.app.exception.InvalidException;
 import com.fido.app.repository.CustomerRepo;
 import com.fido.app.repository.VendorRepo;
 
@@ -40,13 +41,13 @@ public class AuthDetail {
 		return auth.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals("USER"));
 	}
 
-	public CustomerDetails getCustomerDetail() {
+	public CustomerDetails getCustomerDetail() throws InvalidException {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		try {
 			return customerRepo.findByEmail(auth.getName()).orElseThrow();
 		} catch (NoSuchElementException e) {
                  log.info("No Customer is available in AuthDetail class");
-                 throw new NoSuchElementException();
+                 throw new InvalidException("Customer not found");
 		}
 	}
 
@@ -56,25 +57,25 @@ public class AuthDetail {
 		return vendorRepo.findByEmail(auth.getName()).orElseThrow();
 		}catch(Exception e) {
 
-			throw new Exception("vendor is not find");
+			throw new InvalidException("vendor is not find");
 		}
 	}
 	
-	public VendorDetails getVendorDetailById(long id) {
+	public VendorDetails getVendorDetailById(long id) throws InvalidException {
 		try {
 		return vendorRepo.findById(id).orElseThrow();
 		}catch(NoSuchElementException exception) {
 			log.info("AuthDetail vendor is not found");
-			throw exception;
+			throw new InvalidException("vendor not found");
 		}
 	}
 	
-	public CustomerDetails getCustomerDetailsById(long id) {
+	public CustomerDetails getCustomerDetailsById(long id) throws InvalidException {
 		try {
 		return customerRepo.findById(id).orElseThrow();
 		}catch(NoSuchElementException exception) {
 			log.info("AuthDetail Customer is not found");
-			throw exception;
+			throw new InvalidException("Customer not found");
 		}
 	}
 

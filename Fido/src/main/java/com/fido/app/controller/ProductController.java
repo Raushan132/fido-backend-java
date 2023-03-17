@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.VendorProduct;
+import com.fido.app.exception.InvalidException;
 import com.fido.app.model.AdminProduct;
 import com.fido.app.model.Response;
+import com.fido.app.repository.CartIdsRepo;
 import com.fido.app.repository.VendorProductReop;
 import com.fido.app.services.AdminProductService;
 import com.fido.app.services.AuthDetail;
@@ -42,6 +44,9 @@ public class ProductController {
 
 	@Autowired
 	private VendorProductReop productReop;
+	
+	@Autowired
+	private CartIdsRepo cartIdsRepo;
 
 	@Autowired
 	private AuthDetail authDetail;
@@ -91,13 +96,15 @@ public class ProductController {
 	}
 
 	@DeleteMapping(value = "/getDeleteProduct/{id}")
-	public boolean getDeleteProduct(@PathVariable("id") long id) {
+	public ResponseEntity<Response> getDeleteProduct(@PathVariable("id") Long id) throws InvalidException {
 
 		if (!authDetail.isAdmin())
-			return false;
-
+			throw new InvalidException("Need to login with admin");
+		if(id==null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("400","Id is not valid"));
+        cartIdsRepo.deleteByProductIds(id);
 		productReop.deleteById(id);
-		return true;
+		return ResponseEntity.status(HttpStatus.OK).body(new Response("200","deleted successfully"));
+		
 	}
 
 }

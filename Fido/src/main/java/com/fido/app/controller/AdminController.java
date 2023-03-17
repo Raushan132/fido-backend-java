@@ -23,6 +23,7 @@ import com.fido.app.entity.CustomerDetails;
 import com.fido.app.entity.Role;
 import com.fido.app.entity.VendorDetails;
 import com.fido.app.exception.InvalidException;
+import com.fido.app.exception.UserExistException;
 import com.fido.app.model.Response;
 import com.fido.app.repository.CustomerRepo;
 import com.fido.app.repository.VendorRepo;
@@ -98,7 +99,7 @@ public class AdminController {
 		 ObjectMapper objectMapper= new ObjectMapper();
 		 CustomerDetails custDetails= objectMapper.readValue(customer,CustomerDetails.class);
 		 
-		  if( customerRepo.findByEmail(custDetails.getEmail()).isPresent()) throw new Exception("Email is already exist..");
+		  if( customerRepo.findByEmail(custDetails.getEmail()).isPresent()) throw new UserExistException("Email is already exist..");
 		 
 		 
 		 //send files to the CLoudinary api...
@@ -156,7 +157,7 @@ public class AdminController {
 		 ObjectMapper objectMapper= new ObjectMapper();
 		 VendorDetails vendorDetails= objectMapper.readValue(vendor,VendorDetails.class);
 		 
-		 if(vendorRepo.findByEmail(vendorDetails.getEmail()).isPresent()) throw new Exception("Email is already exist..");
+		 if(vendorRepo.findByEmail(vendorDetails.getEmail()).isPresent()) throw new UserExistException("Email is already exist..");
 		 
 //		 send files to the CLoudinary api...
 		   String url= uploadFile.getUploadFile(file1);

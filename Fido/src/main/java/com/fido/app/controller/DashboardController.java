@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.services.DashboardService;
 
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
 @RequestMapping("/api")
 public class DashboardController {
@@ -22,7 +20,7 @@ public class DashboardController {
 	@GetMapping("/dashboard")
 	public Map<String,Object> getDashboard() {
 		  Map<String,Object> map= dashService.getAdminDashboardData();
-		  log.info(map.toString());
+
 		  return map;
 	}
 	

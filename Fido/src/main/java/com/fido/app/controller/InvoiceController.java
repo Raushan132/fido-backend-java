@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fido.app.entity.Invoice;
 import com.fido.app.exception.InvalidException;
+import com.fido.app.exception.InvalidRequest;
 import com.fido.app.exception.OutOfStockException;
 import com.fido.app.model.CartProducts;
 import com.fido.app.services.AuthDetail;
@@ -38,15 +39,15 @@ public class InvoiceController {
 	
 	@PostMapping("/buyProduct/{cid}/{cardId}")
 	public long getProductFromCart(@PathVariable("cid") Long customerId,@RequestBody List<CartProducts> products,@PathVariable long cardId) throws OutOfStockException,Exception {
-		log.info(products.toString());
-		if(customerId==null) throw new Exception("No card is selected");
-		if(products.isEmpty()) throw new Exception("No product is selected");
+		
+		if(customerId==null) throw new InvalidRequest("No card is selected");
+		if(products.isEmpty()) throw new InvalidRequest("No product is selected");
 		var vendor =authDetail.getVendorDetail();
 		var customer= authDetail.getCustomerDetailsById(customerId);
 		var card= cardService.getCardByCustomerIdAndCardId(customerId,cardId);
 		log.info(card.toString());
 		 
-		if(!card.isActivate()) throw new Exception("Card is not activated");
+		if(!card.isActivate()) throw new InvalidRequest("Card is not activated");
 		 
 		var invoice=invoiceGenerator.getInvoiceData(customer, vendor, products, card);
 		

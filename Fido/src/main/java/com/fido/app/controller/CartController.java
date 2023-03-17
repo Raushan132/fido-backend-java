@@ -52,22 +52,23 @@ public class CartController {
 	@GetMapping("/cart/{id}")
 	public Set<VendorProduct> getCartByCustomerId(@PathVariable("id") long customerId) throws Exception {
 
-		try {
+		
 		    var vendor=	authDetail.getVendorDetail();
 			
-		    System.out.println(vendor.getId()+" "+customerId);
+		    try {
 			List<CustProductIds> productIds = cartIdsRepo.findAllProductIdsByCustomerIdsAndVendorIds(customerId,vendor.getId());
-			log.info(productIds.toString());
+			
 			Function<CustProductIds, VendorProduct> fun = (cpIds) -> {
-
-				return vendorProductReop.findById(cpIds.getProductIds()).orElseThrow();
+				return  vendorProductReop.findById(cpIds.getProductIds()).get();
+			    
 			};
 
-			return productIds.stream().map(fun).collect(Collectors.toSet());
-
+			var vdproduct= productIds.stream().map(fun).collect(Collectors.toSet());
+            System.out.println(vdproduct);
+			return vdproduct;
 		} catch (NoSuchElementException e) {
 
-			throw new NoSuchElementException("Customer/Product is not Found in CartConroller at Get/ cart/{id}...");
+			throw new NoSuchElementException("Invalid Product...");
 		}
 
 	}

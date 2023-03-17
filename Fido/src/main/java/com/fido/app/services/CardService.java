@@ -17,6 +17,7 @@ import com.fido.app.exception.CardExistedException;
 import com.fido.app.exception.CardExpireException;
 import com.fido.app.exception.CardNotFoundException;
 import com.fido.app.exception.InvalidException;
+import com.fido.app.exception.InvalidRequest;
 import com.fido.app.repository.CardRepo;
 import com.fido.app.repository.DebitHistoryRepo;
 
@@ -31,7 +32,7 @@ public class CardService {
 	
 	@Autowired
 	private DebitHistoryRepo dhistoryRepo;
-
+	
 	public CardDetail createCard(String cardType, long customerId) throws Exception {
 		
 		
@@ -163,11 +164,12 @@ public class CardService {
 		 return dhistoryRepo.findAllByCustomerId(cid);
 	}
 	
+	
 	public void getRecharged(long cardId) throws Exception {
 		try {
 		CardDetail card=  cardRepo.findById(cardId).orElseThrow();
 		if(!card.isActivate()) throw new CardExpireException("Card is Deactive");
-		if(card.getAmount().equals(this.getAmount(card.getCardType()))) throw new Exception("Already renew");
+		if(card.getAmount().equals(this.getAmount(card.getCardType()))) throw new InvalidRequest("Already renew");
 		card.setAmount(this.getAmount(card.getCardType()));
 		card= cardRepo.save(card);
 		dhistoryRepo.save(this.setDebitHistory(card, card.getAmount(),"CREDIT"));
@@ -178,7 +180,7 @@ public class CardService {
 		}
 	}
 	
-	public  DebitHistory setDebitHistory(CardDetail card,String amt,String msg) {
+	private  DebitHistory setDebitHistory(CardDetail card,String amt,String msg) {
 		DebitHistory debit= new DebitHistory();
 		debit.setCardNo(card.getCardNo());
 		debit.setCustomerId(card.getCustomerId());

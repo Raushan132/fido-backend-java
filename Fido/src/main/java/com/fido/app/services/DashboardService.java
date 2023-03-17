@@ -45,10 +45,7 @@ public class DashboardService {
 		 
 		 
 		 Map<Integer,String> monthSell=new HashMap<>();
-		 String todaySell="";
-		 
-		 
-		 
+				 
 		 List<Invoice> invoices= invoiceRepo.findAll();
 		 List<Invoice> monthInvoices=    invoiceRepo.findAllByInvoiceDateBetween(date.minusMonths(1).plusDays(1).toString());
 		 
@@ -56,7 +53,7 @@ public class DashboardService {
 		 Function<Invoice,BigDecimal> fun=invoice->new BigDecimal(invoice.getGrandTotal());
 		 
 		 String totalSell= invoices.stream().map(fun).reduce(BigDecimal.ZERO,BigDecimal::add).toString();
-		 todaySell= invoiceRepo.findSumByInvoiceDate(date.toString());
+		String todaySell= invoiceRepo.findSumByInvoiceDate(date.toString());
          
 		 monthInvoices.forEach(invoice->{
 			 LocalDate invoiceDate= LocalDateTime.parse(invoice.getInvoiceDate()).toLocalDate();
@@ -68,6 +65,10 @@ public class DashboardService {
 		 List<CardDetail>cards=cardRepo.findAll();
 		 long activeCard=cards.stream().filter(card->card.isActivate()).count();
 		 long deactivatedCard=cards.stream().filter(card->!card.isActivate()).count();
+		 
+		 if(todaySell==null) todaySell="0";
+		 if(totalSell==null) totalSell="0";
+		 
 		 
 		 Map<String,Object> map=new HashMap<>();
 		 map.put("customers",noOfCustomers);
